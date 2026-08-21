@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common.schema.json",
+  "title": "Définitions partagées",
+  "description": "Briques réutilisées par tous les autres schémas. Toute forme utilisée à plus d'un endroit vit ici et nulle part ailleurs.",
+  "$defs": {
+    "Estimate": {
+      "title": "Estimate",
+      "type": "object",
+      "description": "Estimation ponctuelle accompagnée de son intervalle. Le niveau de confiance est global au jeu de données et porté par meta.json (confidenceLevel).",
+      "properties": {
+        "point": {
+          "type": "number",
+          "description": "Estimation ponctuelle."
+        },
+        "lower": {
+          "type": "number",
+          "description": "Borne basse de l'intervalle."
+        },
+        "upper": {
+          "type": "number",
+          "description": "Borne haute de l'intervalle."
+        }
+      },
+      "required": [
+        "point",
+        "lower",
+        "upper"
+      ],
+      "additionalProperties": false,
+      "orderedProperties": [
+        "lower",
+        "point",
+        "upper"
+      ]
+    },
+    "UnitEstimate": {
+      "title": "UnitEstimate",
+      "type": "object",
+      "description": "Estimation contrainte à l'intervalle unité — proportions, parts de variance, coefficients d'équivalence. Même forme que Estimate ; un test unitaire vérifie que les deux définitions gardent exactement les mêmes champs.",
+      "properties": {
+        "point": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Estimation ponctuelle."
+        },
+        "lower": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Borne basse de l'intervalle."
+        },
+        "upper": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Borne haute de l'intervalle."
+        }
+      },
+      "required": [
+        "point",
+        "lower",
+        "upper"
+      ],
+      "additionalProperties": false,
+      "orderedProperties": [
+        "lower",
+        "point",
+        "upper"
+      ]
+    },
+    "Band": {
+      "title": "Band",
+      "type": "object",
+      "description": "Fourchette sans estimation ponctuelle. Utilisée pour les salaires : l'absence de champ 'point' est délibérée et structurelle (§6.6 du brief).",
+      "properties": {
+        "lower": {
+          "type": "number"
+        },
+        "upper": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "lower",
+        "upper"
+      ],
+      "additionalProperties": false,
+      "orderedProperties": [
+        "lower",
+        "upper"
+      ]
+    },
+    "Role": {
+      "title": "Role",
+      "type": "string",
+      "description": "Poste occupé. Les lignes agrégées d'équipe (position == 'team' chez Oracle's Elixir) ne sont jamais exportées comme joueur.",
+      "enum": [
+        "top",
+        "jng",
+        "mid",
+        "adc",
+        "sup"
+      ]
+    },
+    "LeagueId": {
+      "title": "LeagueId",
+      "type": "string",
+      "description": "Ligue régulière couverte. L'extension (LCK, LPL, LCS, autres ERL) se fait en ajoutant une valeur ici : les types TypeScript suivent automatiquement.",
+      "enum": [
+        "LEC",
+        "LFL"
+      ]
+    },
+    "Reliability": {
+      "title": "Reliability",
+      "type": "string",
+      "description": "Dérivé du nombre de games : >= 60 high, 25-59 medium, 10-24 low. En dessous de 10 games le joueur n'est pas exporté.",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "Season": {
+      "title": "Season",
+      "type": "integer",
+      "description": "Année de la saison compétitive.",
+      "minimum": 2019,
+      "maximum": 2100
+    },
+    "Slug": {
+      "title": "Slug",
+      "type": "string",
+      "description": "Identifiant d'URL, stable dans le temps. Minuscules, chiffres et tirets.",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "IsoDate": {
+      "title": "IsoDate",
+      "type": "string",
+      "description": "Date au format AAAA-MM-JJ.",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}

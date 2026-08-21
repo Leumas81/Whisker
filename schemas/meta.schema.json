@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "meta.schema.json",
+  "title": "MetaFile",
+  "description": "Contenu de web/src/data/meta.json : traçabilité de bout en bout. Chaque estimation affichée sur le site remonte au commit de pipeline nommé ici.",
+  "type": "object",
+  "properties": {
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Instant de génération, UTC."
+    },
+    "pipelineCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Hash git complet du dépôt au moment où le pipeline a tourné. Affiché sur le site (§0.2)."
+    },
+    "lastDataDate": {
+      "$ref": "common.schema.json#/$defs/IsoDate",
+      "fieldNote": "Date de la game la plus récente retenue."
+    },
+    "confidenceLevel": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "exclusiveMaximum": 1,
+      "description": "Niveau des intervalles, 0.8 par défaut. Affiché partout dans l'UI, jamais implicite (§4.6)."
+    },
+    "bootstrapReplicates": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "players": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "playerGames": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "teams": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "leagues": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "transitions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "players",
+        "playerGames",
+        "teams",
+        "leagues",
+        "transitions"
+      ],
+      "additionalProperties": false
+    },
+    "unmatchedRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 0.02,
+      "description": "Taux d'entités non résolues. Le maximum de 2 % est structurel : au-delà, le pipeline échoue plutôt que d'exporter (§3.2)."
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "meta.schema.json#/$defs/Source"
+      }
+    }
+  },
+  "required": [
+    "generatedAt",
+    "pipelineCommit",
+    "lastDataDate",
+    "confidenceLevel",
+    "bootstrapReplicates",
+    "counts",
+    "unmatchedRate",
+    "sources"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Source": {
+      "title": "DataSource",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "licence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retrievedAt": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        }
+      },
+      "required": [
+        "name",
+        "url",
+        "licence",
+        "retrievedAt"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

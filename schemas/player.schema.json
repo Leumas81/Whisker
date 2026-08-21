@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "player.schema.json",
+  "title": "PlayersFile",
+  "description": "Contenu de web/src/data/players.json. La provenance (date de génération, hash du pipeline) vit dans meta.json et n'est pas dupliquée ici.",
+  "type": "object",
+  "properties": {
+    "players": {
+      "type": "array",
+      "items": {
+        "$ref": "player.schema.json#/$defs/Player"
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "players"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Player": {
+      "title": "Player",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "$ref": "common.schema.json#/$defs/Slug"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Pseudo affiché, dans sa graphie courante."
+        },
+        "role": {
+          "$ref": "common.schema.json#/$defs/Role"
+        },
+        "team": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Équipe actuelle, en texte. Aucun logo n'est stocké ni affiché (§8)."
+        },
+        "league": {
+          "$ref": "common.schema.json#/$defs/LeagueId"
+        },
+        "age": {
+          "type": "number",
+          "minimum": 14,
+          "maximum": 45,
+          "description": "Âge en années à la date de dernière donnée."
+        },
+        "contractEnd": {
+          "description": "Fin de contrat connue, ou null si Leaguepedia ne la documente pas.",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/IsoDate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "games": {
+          "type": "integer",
+          "minimum": 10,
+          "description": "Games retenues sur la période. Le minimum de 10 est structurel : en dessous, le joueur n'est pas exporté (§3.4)."
+        },
+        "valueIndex": {
+          "$ref": "common.schema.json#/$defs/Estimate"
+        },
+        "playerShare": {
+          "$ref": "common.schema.json#/$defs/UnitEstimate",
+          "fieldNote": "Part de la variance attribuable au joueur plutôt qu'au contexte d'équipe."
+        },
+        "lecEquivalent": {
+          "description": "Performance LEC attendue, sur l'échelle unité. null pour un joueur déjà en LEC : la question ne se pose pas.",
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/UnitEstimate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "salaryQuintile": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "salaryBand": {
+          "$ref": "common.schema.json#/$defs/Band"
+        },
+        "reliability": {
+          "$ref": "common.schema.json#/$defs/Reliability"
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "player.schema.json#/$defs/SeasonRecord"
+          },
+          "description": "Trajectoire par saison, la plus ancienne d'abord."
+        }
+      },
+      "required": [
+        "slug",
+        "name",
+        "role",
+        "team",
+        "league",
+        "age",
+        "contractEnd",
+        "games",
+        "valueIndex",
+        "playerShare",
+        "lecEquivalent",
+        "salaryQuintile",
+        "salaryBand",
+        "reliability",
+        "history"
+      ],
+      "additionalProperties": false
+    },
+    "SeasonRecord": {
+      "title": "SeasonRecord",
+      "type": "object",
+      "properties": {
+        "season": {
+          "$ref": "common.schema.json#/$defs/Season"
+        },
+        "league": {
+          "$ref": "common.schema.json#/$defs/LeagueId"
+        },
+        "team": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "games": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "valueIndex": {
+          "$ref": "common.schema.json#/$defs/Estimate"
+        }
+      },
+      "required": [
+        "season",
+        "league",
+        "team",
+        "games",
+        "valueIndex"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

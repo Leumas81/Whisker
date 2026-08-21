@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "leagues.schema.json",
+  "title": "LeaguesFile",
+  "description": "Contenu de web/src/data/leagues.json : forces de ligue par saison et coefficients d'équivalence entre ligues.",
+  "type": "object",
+  "properties": {
+    "strengths": {
+      "type": "array",
+      "items": {
+        "$ref": "leagues.schema.json#/$defs/LeagueStrength"
+      },
+      "description": "Une entrée par ligue, saison et source d'identification. Les deux sources sont rapportées séparément et jamais moyennées (§4.1)."
+    },
+    "equivalences": {
+      "type": "array",
+      "items": {
+        "$ref": "leagues.schema.json#/$defs/Equivalence"
+      }
+    }
+  },
+  "required": [
+    "strengths",
+    "equivalences"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "IdentificationSource": {
+      "title": "IdentificationSource",
+      "type": "string",
+      "description": "D'où vient l'identification de l'effet de ligue. 'transfers' : joueurs ayant changé de ligue. 'international' : rencontres Worlds, MSI, EMEA Masters.",
+      "enum": [
+        "transfers",
+        "international"
+      ]
+    },
+    "LeagueStrength": {
+      "title": "LeagueStrength",
+      "type": "object",
+      "properties": {
+        "league": {
+          "$ref": "common.schema.json#/$defs/LeagueId"
+        },
+        "season": {
+          "$ref": "common.schema.json#/$defs/Season"
+        },
+        "source": {
+          "$ref": "leagues.schema.json#/$defs/IdentificationSource"
+        },
+        "strength": {
+          "$ref": "common.schema.json#/$defs/Estimate"
+        },
+        "nPlayers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nGames": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "league",
+        "season",
+        "source",
+        "strength",
+        "nPlayers",
+        "nGames"
+      ],
+      "additionalProperties": false
+    },
+    "Equivalence": {
+      "title": "Equivalence",
+      "type": "object",
+      "description": "Traduction d'une performance d'une ligue vers une autre.",
+      "properties": {
+        "from": {
+          "$ref": "common.schema.json#/$defs/LeagueId"
+        },
+        "to": {
+          "$ref": "common.schema.json#/$defs/LeagueId"
+        },
+        "coefficient": {
+          "$ref": "common.schema.json#/$defs/UnitEstimate",
+          "fieldNote": "Facteur d'atténuation appliqué à la performance d'origine. Contraint à (0,1) : monter de ligue ne peut pas améliorer mécaniquement une performance."
+        },
+        "nTransitions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Nombre de trajets observés depuis 2019. C'est la taille d'échantillon affichée à côté du taux de base (§6.4)."
+        },
+        "selectionCorrection": {
+          "type": "string",
+          "description": "Traitement appliqué au biais de sélection. 'none' signifie que le biais est documenté mais non corrigé, et doit être affiché comme tel.",
+          "enum": [
+            "none",
+            "heckman"
+          ]
+        },
+        "retentionOneYear": {
+          "$ref": "common.schema.json#/$defs/UnitEstimate",
+          "fieldNote": "Proportion de joueurs encore présents dans la ligue cible un an après le trajet, avec son intervalle."
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "coefficient",
+        "nTransitions",
+        "selectionCorrection",
+        "retentionOneYear"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aging.schema.json",
+  "title": "AgingFile",
+  "description": "Contenu de web/src/data/aging.json : courbes de vieillissement par rôle. Deux variantes sont toujours exportées afin que le biais de survie reste visible plutôt qu'arbitré en silence (§4.4).",
+  "type": "object",
+  "properties": {
+    "variants": {
+      "type": "array",
+      "items": {
+        "$ref": "aging.schema.json#/$defs/Variant"
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "variants"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Variant": {
+      "title": "AgingVariant",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "'all' : tous les joueurs, courbe sujette au biais de survie. 'tenured' : restriction aux joueurs ayant au moins N saisons.",
+          "enum": [
+            "all",
+            "tenured"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Libellé affiché, en français."
+        },
+        "survivorshipNote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ce que cette variante corrige et ce qu'elle laisse passer. Affiché sans clic (§6.5)."
+        },
+        "minSeasons": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Seuil de saisons appliqué pour construire la variante."
+        },
+        "curves": {
+          "type": "array",
+          "items": {
+            "$ref": "aging.schema.json#/$defs/Curve"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "survivorshipNote",
+        "minSeasons",
+        "curves"
+      ],
+      "additionalProperties": false
+    },
+    "Curve": {
+      "title": "AgingCurve",
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "common.schema.json#/$defs/Role"
+        },
+        "peakAge": {
+          "$ref": "common.schema.json#/$defs/Estimate"
+        },
+        "nPlayers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nGames": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "aging.schema.json#/$defs/CurvePoint"
+          },
+          "minItems": 2,
+          "description": "Grille d'âges régulière, croissante."
+        }
+      },
+      "required": [
+        "role",
+        "peakAge",
+        "nPlayers",
+        "nGames",
+        "points"
+      ],
+      "additionalProperties": false
+    },
+    "CurvePoint": {
+      "title": "AgingCurvePoint",
+      "type": "object",
+      "properties": {
+        "age": {
+          "type": "number",
+          "minimum": 14,
+          "maximum": 45
+        },
+        "value": {
+          "$ref": "common.schema.json#/$defs/Estimate"
+        }
+      },
+      "required": [
+        "age",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

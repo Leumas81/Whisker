@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "salary.schema.json",
+  "title": "SalaryFile",
+  "description": "Contenu de web/src/data/salary.json : paramètres log-normaux par ligue et ancres sourcées. Aucun montant nominatif n'apparaît ici — l'attribution individuelle se fait par quintile et fourchette dans players.json (§6.6).",
+  "type": "object",
+  "properties": {
+    "distributions": {
+      "type": "array",
+      "items": {
+        "$ref": "salary.schema.json#/$defs/Distribution"
+      }
+    },
+    "anchors": {
+      "type": "array",
+      "items": {
+        "$ref": "salary.schema.json#/$defs/Anchor"
+      },
+      "minItems": 1,
+      "description": "Recopiées depuis pipeline/config/salary_anchors.yaml. Une ancre sans source ni date fait échouer la validation."
+    },
+    "disclaimer": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Texte affiché partout où une estimation salariale apparaît. Stocké dans les données pour qu'il ne puisse pas diverger d'une page à l'autre."
+    }
+  },
+  "required": [
+    "distributions",
+    "anchors",
+    "disclaimer"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Distribution": {
+      "title": "SalaryDistribution",
+      "type": "object",
+      "properties": {
+        "league": {
+          "$ref": "common.schema.json#/$defs/LeagueId"
+        },
+        "season": {
+          "$ref": "common.schema.json#/$defs/Season"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "EUR"
+          ]
+        },
+        "mu": {
+          "type": "number",
+          "description": "Paramètre de position de la log-normale, sur l'échelle log."
+        },
+        "sigma": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Paramètre d'échelle de la log-normale, sur l'échelle log."
+        },
+        "floor": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Plancher salarial de la ligue."
+        },
+        "pBelowFloor": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Masse de probabilité sous le plancher. Au-delà de 5 %, la log-normale est tronquée à gauche et ré-identifiée numériquement (§4.5)."
+        },
+        "truncated": {
+          "type": "boolean",
+          "description": "Vrai si la ré-identification tronquée a été appliquée."
+        },
+        "quintiles": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "$ref": "salary.schema.json#/$defs/QuintileBand"
+          }
+        }
+      },
+      "required": [
+        "league",
+        "season",
+        "currency",
+        "mu",
+        "sigma",
+        "floor",
+        "pBelowFloor",
+        "truncated",
+        "quintiles"
+      ],
+      "additionalProperties": false
+    },
+    "QuintileBand": {
+      "title": "QuintileBand",
+      "type": "object",
+      "properties": {
+        "quintile": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "band": {
+          "$ref": "common.schema.json#/$defs/Band"
+        }
+      },
+      "required": [
+        "quintile",
+        "band"
+      ],
+      "additionalProperties": false
+    },
+    "Anchor": {
+      "title": "SalaryAnchor",
+      "type": "object",
+      "description": "Valeur salariale publique servant à calibrer la distribution. Jamais codée en dur dans un script (§3.1).",
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/Slug"
+        },
+        "league": {
+          "$ref": "common.schema.json#/$defs/LeagueId"
+        },
+        "season": {
+          "$ref": "common.schema.json#/$defs/Season"
+        },
+        "statistic": {
+          "type": "string",
+          "enum": [
+            "mean",
+            "median",
+            "floor"
+          ]
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "EUR"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Nom lisible de la source."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1
+        },
+        "retrievedAt": {
+          "$ref": "common.schema.json#/$defs/IsoDate"
+        }
+      },
+      "required": [
+        "id",
+        "league",
+        "season",
+        "statistic",
+        "value",
+        "currency",
+        "source",
+        "url",
+        "retrievedAt"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
