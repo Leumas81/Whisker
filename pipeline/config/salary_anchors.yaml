@@ -1,0 +1,43 @@
+# Ancres salariales — §3.1C et §4.5 du brief.
+#
+# Aucune de ces valeurs n'est codée en dur dans un script. Chacune porte sa source et sa
+# date de relevé, et se retrouve telle quelle dans salary.json, donc affichable sur le site.
+#
+# Ajouter une ancre ici change la calibration : c'est voulu. Les changer sans mettre à jour
+# `retrievedAt` ne l'est pas.
+
+confidence_level: 0.8
+
+anchors:
+  - id: lec-moyenne-2025
+    league: LEC
+    season: 2025
+    statistic: mean
+    value: 240000
+    currency: EUR
+    source: "Brief WHISKER §3.1C — à remplacer par la source primaire avant mise en ligne"
+    url: "https://example.invalid/a-sourcer"
+    retrieved_at: "2026-08-21"
+
+  - id: lec-mediane-2025
+    league: LEC
+    season: 2025
+    statistic: median
+    value: 165000
+    currency: EUR
+    source: "Brief WHISKER §3.1C — à remplacer par la source primaire avant mise en ligne"
+    url: "https://example.invalid/a-sourcer"
+    retrieved_at: "2026-08-21"
+
+  - id: lec-plancher-2025
+    league: LEC
+    season: 2025
+    statistic: floor
+    value: 60000
+    currency: EUR
+    source: "Brief WHISKER §3.1C — à remplacer par la source primaire avant mise en ligne"
+    url: "https://example.invalid/a-sourcer"
+    retrieved_at: "2026-08-21"
+
+# La LFL n'a pas d'ancre publique connue à ce jour. Sans ancre, aucune distribution
+# salariale LFL n'est produite : mieux vaut un manque affiché qu'un chiffre inventé.

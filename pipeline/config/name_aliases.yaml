@@ -1,0 +1,20 @@
+# Réconciliation des identités — §3.2.
+#
+# Les pseudos et les noms d'équipe changent. Chaque correspondance est ajoutée ici à la main,
+# après vérification : c'est le seul endroit du pipeline où un jugement humain entre dans les
+# données, et il doit rester traçable dans l'historique git.
+#
+# Tout ce qui n'est pas résolu part dans pipeline/interim/unmatched.csv. Au-delà de 2 % de
+# non-résolution, le pipeline échoue plutôt que d'exporter des données amputées.
+
+players: []
+# Exemple de la forme attendue :
+#   - canonical: "Vladi"
+#     aliases: ["Vladii", "Vlad1"]
+#     note: "graphie changée au printemps 2025"
+
+teams: []
+# Exemple :
+#   - canonical: "Karmine Corp"
+#     aliases: ["KC", "Karmine Corp Blue"]
+#     note: "l'équipe académique reste distincte, ne pas fusionner"

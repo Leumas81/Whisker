@@ -1,0 +1,41 @@
+# Ligues couvertes et compétitions servant à identifier leur force relative.
+#
+# `leagues` doit rester synchronisé avec l'énumération LeagueId de schemas/common.schema.json ;
+# un test le vérifie. Ajouter une ligue se fait aux deux endroits, et nulle part ailleurs.
+
+period:
+  first_season: 2019
+
+leagues:
+  - id: LEC
+    label: "LEC"
+    tier: 1
+    region: EMEA
+    oracle_codes: ["LEC"]
+
+  - id: LFL
+    label: "LFL"
+    tier: 2
+    region: EMEA
+    oracle_codes: ["LFL"]
+
+# Rencontres internationales : elles ne sont pas exportées comme ligues, elles servent de
+# seconde source d'identification de l'effet de ligue (§4.1).
+international_events:
+  - id: WLDs
+    label: "Worlds"
+    oracle_codes: ["WLDs"]
+  - id: MSI
+    label: "MSI"
+    oracle_codes: ["MSI"]
+  - id: EM
+    label: "EMEA Masters"
+    oracle_codes: ["EM", "EM EU"]
+
+reliability:
+  high_min_games: 60
+  medium_min_games: 25
+  low_min_games: 10
+
+# Le pipeline s'arrête au-delà de ce taux d'entités non résolues (§3.2).
+max_unmatched_rate: 0.02
