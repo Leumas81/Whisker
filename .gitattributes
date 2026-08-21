@@ -1,0 +1,14 @@
+# Fins de ligne normalisées en LF dans le dépôt. La CI tourne sous Linux et le contrôle
+# de dérive des types générés compare du texte : un CRLF glissé dans un fichier suffirait
+# à faire diverger deux plateformes sur un contenu identique.
+* text=auto eol=lf
+
+# Binaires : ne jamais convertir.
+*.png binary
+*.woff2 binary
+*.parquet binary
+
+# Fichiers générés : masqués dans les diffs de revue, mais bien versionnés.
+web/src/generated/types.ts linguist-generated=true
+pnpm-lock.yaml linguist-generated=true
+pipeline/renv.lock linguist-generated=true
