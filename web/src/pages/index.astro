@@ -1,0 +1,40 @@
+---
+import Base from "~/layouts/Base.astro";
+import { hasAllData } from "~/lib/data";
+
+/**
+ * Page d'attente de la phase 0. Le hero — forest plot des dix meilleurs joueurs LEC —
+ * est construit en phase 6, une fois le composant signature et les données disponibles.
+ */
+const pipelineReady = hasAllData();
+---
+
+<Base
+  title="Accueil"
+  description="Les stats existent partout. Ici, on te dit ce qu'elles valent."
+>
+  <p class="font-mono text-xs uppercase tracking-wide text-muted">Socle technique · phase 0</p>
+
+  <h1 class="mt-4 font-display text-3xl uppercase leading-tight tracking-tight">
+    Ce que valent les joueurs,<br />avec la marge d&rsquo;erreur.
+  </h1>
+
+  <p class="mt-6 max-w-prose">
+    Les stats existent partout. Ici, on te dit ce qu&rsquo;elles valent.
+  </p>
+
+  <div class="mt-10 border border-rule bg-panel p-6">
+    <p class="font-mono text-xs uppercase tracking-wide text-muted">État du pipeline</p>
+    <p class="mt-2" data-testid="pipeline-state">
+      {
+        pipelineReady
+          ? "Les cinq jeux de données sont présents et validés."
+          : "Le pipeline n'a pas encore tourné. Aucune estimation n'est disponible."
+      }
+    </p>
+    <p class="mt-4 text-sm text-muted">
+      Aucune donnée d&rsquo;exemple n&rsquo;est affichée tant que le pipeline n&rsquo;a pas produit
+      de résultats réels : un chiffre inventé sur cette page vaudrait moins que pas de chiffre du tout.
+    </p>
+  </div>
+</Base>

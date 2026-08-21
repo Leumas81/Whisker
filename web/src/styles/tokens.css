@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/**
+ * Instrumentation scientifique, pas esport.
+ *
+ * Une seule couleur vive existe : --mark, réservée au point estimé. Elle ne doit jamais
+ * servir à un bouton, un lien, un titre ou un fond. Un test Playwright inspecte les couleurs
+ * calculées hors des marqueurs d'estimation pour faire respecter cette règle.
+ */
+@theme {
+  --color-ink: #16202b;
+  --color-paper: #f5f6f7;
+  --color-panel: #e4e8eb;
+  --color-rule: #c3cbd2;
+  --color-muted: #6f7e8c;
+  --color-mark: #b4275c;
+  --color-flag: #a66a00;
+
+  /* Les fichiers woff2 auto-hébergés arrivent en phase 4 ; aucune requête tierce (§8). */
+  --font-display: "Archivo Expanded", "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Base 16, ratio 1.25. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.9375rem;
+  --text-3xl: 2.4375rem;
+  --text-4xl: 3.0625rem;
+
+  /* Rayons <= 2px : le vocabulaire est celui de la planche imprimée, pas de l'application. */
+  --radius-sm: 1px;
+  --radius-DEFAULT: 2px;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-size: var(--text-base);
+    line-height: 1.55;
+  }
+
+  /* Tous les nombres, sans exception : l'alignement vertical des chiffres est le point. */
+  [data-numeric],
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+/**
+ * Le seul mouvement du site : les intervalles du forest plot se dessinent du centre vers
+ * l'extérieur au chargement. Tout le reste est immobile.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
