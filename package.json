@@ -1,0 +1,29 @@
+{
+  "name": "whisker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Les stats existent partout. Ici, on te dit ce qu'elles valent.",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "gen:types": "node tools/gen-types.mjs",
+    "check:types-drift": "node tools/gen-types.mjs --check",
+    "check:schemas": "node tools/check-schemas.mjs",
+    "validate:data": "node tools/validate-data.mjs",
+    "lint": "pnpm --filter whisker-web run lint",
+    "typecheck": "pnpm --filter whisker-web run typecheck",
+    "test:unit": "pnpm --filter whisker-web run test:unit",
+    "test:e2e": "pnpm --filter whisker-web run test:e2e",
+    "build": "pnpm --filter whisker-web run build",
+    "dev": "pnpm --filter whisker-web run dev",
+    "verify": "node tools/verify.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "json-schema-to-typescript": "^15.0.4"
+  }
+}

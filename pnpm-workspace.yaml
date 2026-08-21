@@ -1,0 +1,13 @@
+packages:
+  - "web"
+
+# esbuild et sharp sont des dépendances directes d'Astro et de Vite : leurs scripts
+# d'installation ne font que sélectionner le binaire de la plateforme.
+allowBuilds:
+  esbuild: true
+  sharp: true
+
+# Astro 5 embarque Vite 6 ; @tailwindcss/vite accepte Vite 5 à 8 et tirait Vite 7.
+# Deux Vite dans l'arbre, ce sont deux jeux de types incompatibles et un échec de typage.
+overrides:
+  vite: "^6.4.1"
