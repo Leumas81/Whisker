@@ -7,17 +7,19 @@
   "properties": {
     "distributions": {
       "type": "array",
-      "items": {
-        "$ref": "salary.schema.json#/$defs/Distribution"
-      }
+      "items": { "$ref": "salary.schema.json#/$defs/Distribution" },
+      "description": "Uniquement les ligues effectivement calibrées. Une ligue absente d'ici est présente dans « excluded », jamais nulle part."
+    },
+    "excluded": {
+      "type": "array",
+      "items": { "$ref": "salary.schema.json#/$defs/Exclusion" },
+      "description": "Ligues volontairement non calibrées, avec la raison. Rendre l'absence explicite est le seul moyen de la distinguer d'un oubli."
     },
     "anchors": {
       "type": "array",
-      "items": {
-        "$ref": "salary.schema.json#/$defs/Anchor"
-      },
+      "items": { "$ref": "salary.schema.json#/$defs/Anchor" },
       "minItems": 1,
-      "description": "Recopiées depuis pipeline/config/salary_anchors.yaml. Une ancre sans source ni date fait échouer la validation."
+      "description": "Recopiées depuis pipeline/config/salary_anchors.yaml, y compris celles qui n'ont servi à aucune calibration. Une ancre sans source, sans méthode ou sans date fait échouer la validation."
     },
     "disclaimer": {
       "type": "string",
@@ -25,151 +27,102 @@
       "description": "Texte affiché partout où une estimation salariale apparaît. Stocké dans les données pour qu'il ne puisse pas diverger d'une page à l'autre."
     }
   },
-  "required": [
-    "distributions",
-    "anchors",
-    "disclaimer"
-  ],
+  "required": ["distributions", "excluded", "anchors", "disclaimer"],
   "additionalProperties": false,
   "$defs": {
     "Distribution": {
       "title": "SalaryDistribution",
       "type": "object",
       "properties": {
-        "league": {
-          "$ref": "common.schema.json#/$defs/LeagueId"
-        },
-        "season": {
-          "$ref": "common.schema.json#/$defs/Season"
-        },
-        "currency": {
+        "league": { "$ref": "common.schema.json#/$defs/LeagueId" },
+        "season": { "$ref": "common.schema.json#/$defs/Season" },
+        "currency": { "type": "string", "enum": ["EUR"] },
+        "basis": {
           "type": "string",
-          "enum": [
-            "EUR"
-          ]
+          "enum": ["observed"],
+          "description": "Seules les distributions adossées à deux moments relevés sur la même période sont publiées. L'énumération n'a qu'une valeur : c'est délibéré, elle interdit structurellement de publier une calibration bâtie sur autre chose."
         },
-        "mu": {
-          "type": "number",
-          "description": "Paramètre de position de la log-normale, sur l'échelle log."
-        },
-        "sigma": {
-          "type": "number",
-          "exclusiveMinimum": 0,
-          "description": "Paramètre d'échelle de la log-normale, sur l'échelle log."
-        },
-        "floor": {
-          "type": "number",
-          "minimum": 0,
-          "description": "Plancher salarial de la ligue."
-        },
+        "mu": { "type": "number", "description": "Paramètre de position de la log-normale, sur l'échelle log." },
+        "sigma": { "type": "number", "exclusiveMinimum": 0, "description": "Paramètre d'échelle de la log-normale, sur l'échelle log." },
+        "floor": { "type": "number", "minimum": 0, "description": "Plancher salarial réglementaire de la ligue." },
         "pBelowFloor": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "description": "Masse de probabilité sous le plancher. Au-delà de 5 %, la log-normale est tronquée à gauche et ré-identifiée numériquement (§4.5)."
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Masse de probabilité que la log-normale NON tronquée plaçait sous le plancher. Au-delà de 5 %, la loi est tronquée à gauche et ré-identifiée numériquement (§4.5). Conservée telle quelle : c'est la justification chiffrée de la troncature."
         },
-        "truncated": {
-          "type": "boolean",
-          "description": "Vrai si la ré-identification tronquée a été appliquée."
-        },
+        "truncated": { "type": "boolean", "description": "Vrai si la ré-identification tronquée a été appliquée." },
+        "note": { "type": "string", "minLength": 1, "description": "Ce que cette calibration suppose, en français, affichable." },
         "quintiles": {
           "type": "array",
-          "minItems": 5,
-          "maxItems": 5,
-          "items": {
-            "$ref": "salary.schema.json#/$defs/QuintileBand"
-          }
+          "minItems": 5, "maxItems": 5,
+          "items": { "$ref": "salary.schema.json#/$defs/QuintileBand" }
         }
       },
-      "required": [
-        "league",
-        "season",
-        "currency",
-        "mu",
-        "sigma",
-        "floor",
-        "pBelowFloor",
-        "truncated",
-        "quintiles"
-      ],
+      "required": ["league", "season", "currency", "basis", "mu", "sigma", "floor", "pBelowFloor", "truncated", "note", "quintiles"],
+      "additionalProperties": false
+    },
+    "Exclusion": {
+      "title": "SalaryExclusion",
+      "type": "object",
+      "description": "Une ligue pour laquelle aucune estimation salariale n'est produite.",
+      "properties": {
+        "league": { "$ref": "common.schema.json#/$defs/LeagueId" },
+        "season": { "$ref": "common.schema.json#/$defs/Season" },
+        "reason": { "type": "string", "minLength": 1, "description": "Pourquoi les sources disponibles ne permettent pas de calibrer. Affiché sur le site." }
+      },
+      "required": ["league", "season", "reason"],
       "additionalProperties": false
     },
     "QuintileBand": {
       "title": "QuintileBand",
       "type": "object",
       "properties": {
-        "quintile": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 5
-        },
-        "band": {
-          "$ref": "common.schema.json#/$defs/Band"
-        }
+        "quintile": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "band": { "$ref": "common.schema.json#/$defs/Band" }
       },
-      "required": [
-        "quintile",
-        "band"
-      ],
+      "required": ["quintile", "band"],
       "additionalProperties": false
     },
     "Anchor": {
       "title": "SalaryAnchor",
       "type": "object",
-      "description": "Valeur salariale publique servant à calibrer la distribution. Jamais codée en dur dans un script (§3.1).",
+      "description": "Valeur salariale publique servant à calibrer, ou à documenter pourquoi on ne calibre pas. Jamais codée en dur dans un script (§3.1).",
       "properties": {
-        "id": {
-          "$ref": "common.schema.json#/$defs/Slug"
-        },
-        "league": {
-          "$ref": "common.schema.json#/$defs/LeagueId"
-        },
-        "season": {
-          "$ref": "common.schema.json#/$defs/Season"
-        },
+        "id": { "$ref": "common.schema.json#/$defs/Slug" },
+        "league": { "$ref": "common.schema.json#/$defs/LeagueId" },
+        "season": { "$ref": "common.schema.json#/$defs/Season" },
         "statistic": {
           "type": "string",
-          "enum": [
-            "mean",
-            "median",
-            "floor"
-          ]
+          "enum": ["mean", "median", "floor", "rosterCap", "range"],
+          "description": "« rosterCap » est un plafond réglementaire sur la masse salariale des cinq titulaires : il majore une moyenne sans la situer. « range » est une fourchette déclarative."
         },
         "value": {
-          "type": "number",
-          "minimum": 0
+          "description": "Valeur ponctuelle, ou null pour une ancre de type « range ».",
+          "anyOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
         },
-        "currency": {
-          "type": "string",
-          "enum": [
-            "EUR"
-          ]
+        "valueLower": {
+          "description": "Borne basse d'une ancre « range », null sinon.",
+          "anyOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
         },
-        "source": {
+        "valueUpper": {
+          "description": "Borne haute d'une ancre « range », null sinon.",
+          "anyOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
+        },
+        "uncertainty": {
+          "description": "Marge annoncée par la source, en euros. null quand la source n'en donne pas. Zéro pour une valeur réglementaire, qui n'est pas une estimation.",
+          "anyOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
+        },
+        "currency": { "type": "string", "enum": ["EUR"] },
+        "source": { "type": "string", "minLength": 1, "description": "Nom lisible de la source." },
+        "method": {
           "type": "string",
           "minLength": 1,
-          "description": "Nom lisible de la source."
+          "description": "Comment la source a obtenu ce chiffre. Distinguer une divulgation réglementaire d'une enquête journalistique change ce qu'on peut en conclure, et le lecteur a le droit de le savoir."
         },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "minLength": 1
-        },
-        "retrievedAt": {
-          "$ref": "common.schema.json#/$defs/IsoDate"
-        }
+        "url": { "type": "string", "format": "uri", "pattern": "^https://", "minLength": 1 },
+        "publishedAt": { "$ref": "common.schema.json#/$defs/IsoDate" },
+        "retrievedAt": { "$ref": "common.schema.json#/$defs/IsoDate" }
       },
-      "required": [
-        "id",
-        "league",
-        "season",
-        "statistic",
-        "value",
-        "currency",
-        "source",
-        "url",
-        "retrievedAt"
-      ],
+      "required": ["id", "league", "season", "statistic", "value", "valueLower", "valueUpper", "uncertainty", "currency", "source", "method", "url", "publishedAt", "retrievedAt"],
       "additionalProperties": false
     }
   }

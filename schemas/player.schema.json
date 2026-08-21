@@ -84,12 +84,11 @@
           ]
         },
         "salaryQuintile": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 5
+          "description": "Quintile salarial dans sa ligue, ou null si la ligue n'a pas de distribution calibrée. Le null est un résultat, pas une donnée manquante : il signifie que les sources publiques ne permettent pas d'estimer, et le site l'affiche comme tel.",
+          "anyOf": [{ "type": "integer", "minimum": 1, "maximum": 5 }, { "type": "null" }]
         },
         "salaryBand": {
-          "$ref": "common.schema.json#/$defs/Band"
+          "anyOf": [{ "$ref": "common.schema.json#/$defs/Band" }, { "type": "null" }]
         },
         "reliability": {
           "$ref": "common.schema.json#/$defs/Reliability"

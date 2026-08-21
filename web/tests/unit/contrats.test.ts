@@ -118,6 +118,99 @@ describe("salaires", () => {
     expect(validatePlayer({ ...referencePlayer, salaryQuintile: 6 }).valid).toBe(false);
     expect(validatePlayer({ ...referencePlayer, salaryQuintile: 0 }).valid).toBe(false);
   });
+
+  it("accepte l'absence d'estimation quand la ligue n'a pas de distribution calibrée", () => {
+    // La LFL n'a pas deux moments salariaux relevés sur la même période : ses joueurs
+    // sortent du pipeline sans quintile ni fourchette, et c'est un résultat, pas un trou.
+    const result = validatePlayer({
+      ...referencePlayer,
+      league: "LFL",
+      salaryQuintile: null,
+      salaryBand: null,
+    });
+    expect(result.valid).toBe(true);
+  });
+});
+
+describe("contrat des ancres salariales", () => {
+  const validateSalary = (payload: unknown) => {
+    const validate = ajv.getSchema("salary.schema.json")!;
+    return { valid: validate(payload) as boolean, errors: validate.errors };
+  };
+
+  const anchor = {
+    id: "lec-mediane-2025",
+    league: "LEC",
+    season: 2025,
+    statistic: "median",
+    value: 165000,
+    valueLower: null,
+    valueUpper: null,
+    uncertainty: 10000,
+    currency: "EUR",
+    source: "Sheep Esports — enquête LEC Wooloo",
+    method: "Médiane des 50 joueurs actifs, split Winter 2025, à ± 10 000 €.",
+    url: "https://www.sheepesports.com/en/all/articles/exclusive-everything-about-lec-salaries-unveiled-or-lec-wooloo/en",
+    publishedAt: "2025-01-20",
+    retrievedAt: "2026-08-21",
+  };
+
+  const file = {
+    distributions: [],
+    excluded: [
+      { league: "LFL", season: 2025, reason: "Aucune médiane relevée sur la même période que le plafond." },
+    ],
+    anchors: [anchor],
+    disclaimer: "Estimation statistique. Aucun salaire réel n'est connu de ce site.",
+  };
+
+  it("accepte une ancre complète", () => {
+    expect(validateSalary(file).valid).toBe(true);
+  });
+
+  it("refuse une ancre sans méthode : on doit pouvoir distinguer une enquête d'un règlement", () => {
+    const { method: _drop, ...withoutMethod } = anchor;
+    expect(validateSalary({ ...file, anchors: [withoutMethod] }).valid).toBe(false);
+  });
+
+  it("refuse une ancre sans date de publication", () => {
+    const { publishedAt: _drop, ...withoutDate } = anchor;
+    expect(validateSalary({ ...file, anchors: [withoutDate] }).valid).toBe(false);
+  });
+
+  it("refuse une URL qui n'est pas en HTTPS", () => {
+    expect(
+      validateSalary({ ...file, anchors: [{ ...anchor, url: "http://example.invalid/x" }] }).valid,
+    ).toBe(false);
+  });
+
+  it("refuse une calibration qui ne repose pas sur des moments observés", () => {
+    const distribution = {
+      league: "LEC",
+      season: 2025,
+      currency: "EUR",
+      basis: "cap",
+      mu: 11.78,
+      sigma: 0.92,
+      floor: 60000,
+      pBelowFloor: 0.121,
+      truncated: true,
+      note: "Calibrée sur un plafond réglementaire.",
+      quintiles: [1, 2, 3, 4, 5].map((quintile) => ({
+        quintile,
+        band: { lower: 60000 + quintile * 1000, upper: 60000 + quintile * 2000 },
+      })),
+    };
+    expect(validateSalary({ ...file, distributions: [distribution] }).valid).toBe(false);
+    expect(
+      validateSalary({ ...file, distributions: [{ ...distribution, basis: "observed" }] }).valid,
+    ).toBe(true);
+  });
+
+  it("exige que toute ligue non calibrée soit explicitement écartée", () => {
+    const { excluded: _drop, ...withoutExcluded } = file;
+    expect(validateSalary(withoutExcluded).valid).toBe(false);
+  });
 });
 
 describe("seuil de fiabilité", () => {

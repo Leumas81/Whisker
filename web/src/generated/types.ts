@@ -85,8 +85,11 @@ export interface Player {
    * Performance LEC attendue, sur l'échelle unité. null pour un joueur déjà en LEC : la question ne se pose pas.
    */
   lecEquivalent: UnitEstimate | null;
-  salaryQuintile: number;
-  salaryBand: Band;
+  /**
+   * Quintile salarial dans sa ligue, ou null si la ligue n'a pas de distribution calibrée. Le null est un résultat, pas une donnée manquante : il signifie que les sources publiques ne permettent pas d'estimer, et le site l'affiche comme tel.
+   */
+  salaryQuintile: number | null;
+  salaryBand: Band | null;
   reliability: Reliability;
   /**
    * Trajectoire par saison, la plus ancienne d'abord.
@@ -224,9 +227,16 @@ export interface AgingCurvePoint {
  * Contenu de web/src/data/salary.json : paramètres log-normaux par ligue et ancres sourcées. Aucun montant nominatif n'apparaît ici — l'attribution individuelle se fait par quintile et fourchette dans players.json (§6.6).
  */
 export interface SalaryFile {
+  /**
+   * Uniquement les ligues effectivement calibrées. Une ligue absente d'ici est présente dans « excluded », jamais nulle part.
+   */
   distributions: SalaryDistribution[];
   /**
-   * Recopiées depuis pipeline/config/salary_anchors.yaml. Une ancre sans source ni date fait échouer la validation.
+   * Ligues volontairement non calibrées, avec la raison. Rendre l'absence explicite est le seul moyen de la distinguer d'un oubli.
+   */
+  excluded: SalaryExclusion[];
+  /**
+   * Recopiées depuis pipeline/config/salary_anchors.yaml, y compris celles qui n'ont servi à aucune calibration. Une ancre sans source, sans méthode ou sans date fait échouer la validation.
    *
    * @minItems 1
    */
@@ -241,6 +251,10 @@ export interface SalaryDistribution {
   season: Season;
   currency: "EUR";
   /**
+   * Seules les distributions adossées à deux moments relevés sur la même période sont publiées. L'énumération n'a qu'une valeur : c'est délibéré, elle interdit structurellement de publier une calibration bâtie sur autre chose.
+   */
+  basis: "observed";
+  /**
    * Paramètre de position de la log-normale, sur l'échelle log.
    */
   mu: number;
@@ -249,17 +263,21 @@ export interface SalaryDistribution {
    */
   sigma: number;
   /**
-   * Plancher salarial de la ligue.
+   * Plancher salarial réglementaire de la ligue.
    */
   floor: number;
   /**
-   * Masse de probabilité sous le plancher. Au-delà de 5 %, la log-normale est tronquée à gauche et ré-identifiée numériquement (§4.5).
+   * Masse de probabilité que la log-normale NON tronquée plaçait sous le plancher. Au-delà de 5 %, la loi est tronquée à gauche et ré-identifiée numériquement (§4.5). Conservée telle quelle : c'est la justification chiffrée de la troncature.
    */
   pBelowFloor: number;
   /**
    * Vrai si la ré-identification tronquée a été appliquée.
    */
   truncated: boolean;
+  /**
+   * Ce que cette calibration suppose, en français, affichable.
+   */
+  note: string;
   /**
    * @minItems 5
    * @maxItems 5
@@ -271,20 +289,54 @@ export interface QuintileBand {
   band: Band;
 }
 /**
- * Valeur salariale publique servant à calibrer la distribution. Jamais codée en dur dans un script (§3.1).
+ * Une ligue pour laquelle aucune estimation salariale n'est produite.
+ */
+export interface SalaryExclusion {
+  league: LeagueId;
+  season: Season;
+  /**
+   * Pourquoi les sources disponibles ne permettent pas de calibrer. Affiché sur le site.
+   */
+  reason: string;
+}
+/**
+ * Valeur salariale publique servant à calibrer, ou à documenter pourquoi on ne calibre pas. Jamais codée en dur dans un script (§3.1).
  */
 export interface SalaryAnchor {
   id: Slug;
   league: LeagueId;
   season: Season;
-  statistic: "mean" | "median" | "floor";
-  value: number;
+  /**
+   * « rosterCap » est un plafond réglementaire sur la masse salariale des cinq titulaires : il majore une moyenne sans la situer. « range » est une fourchette déclarative.
+   */
+  statistic: "mean" | "median" | "floor" | "rosterCap" | "range";
+  /**
+   * Valeur ponctuelle, ou null pour une ancre de type « range ».
+   */
+  value: number | null;
+  /**
+   * Borne basse d'une ancre « range », null sinon.
+   */
+  valueLower: number | null;
+  /**
+   * Borne haute d'une ancre « range », null sinon.
+   */
+  valueUpper: number | null;
+  /**
+   * Marge annoncée par la source, en euros. null quand la source n'en donne pas. Zéro pour une valeur réglementaire, qui n'est pas une estimation.
+   */
+  uncertainty: number | null;
   currency: "EUR";
   /**
    * Nom lisible de la source.
    */
   source: string;
+  /**
+   * Comment la source a obtenu ce chiffre. Distinguer une divulgation réglementaire d'une enquête journalistique change ce qu'on peut en conclure, et le lecteur a le droit de le savoir.
+   */
+  method: string;
   url: string;
+  publishedAt: IsoDate;
   retrievedAt: IsoDate;
 }
 /**
