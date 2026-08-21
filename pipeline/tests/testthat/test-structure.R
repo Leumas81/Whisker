@@ -62,11 +62,17 @@ test_that("les seuils de fiabilité correspondent au tableau du brief", {
 test_that("chaque ancre salariale porte sa source et sa date", {
   anchors <- whisker_config("salary_anchors")$anchors
   expect_gt(length(anchors), 0)
+  connues <- c("mean", "median", "floor", "roster_cap", "range")
   for (anchor in anchors) {
     expect_true(nzchar(anchor$source), info = anchor$id)
     expect_true(nzchar(anchor$url), info = anchor$id)
     expect_match(anchor$retrieved_at, "^\\d{4}-\\d{2}-\\d{2}$", info = anchor$id)
-    expect_true(anchor$statistic %in% c("mean", "median", "floor"), info = anchor$id)
+    expect_true(anchor$statistic %in% connues, info = anchor$id)
+    # Une ancre porte soit une valeur, soit une fourchette, jamais ni l'un ni l'autre.
+    expect_true(
+      !is.null(anchor$value) || (!is.null(anchor$value_lower) && !is.null(anchor$value_upper)),
+      info = anchor$id
+    )
   }
 })
 
@@ -79,6 +85,24 @@ test_that("les ancres LEC restent ordonnées : plancher < médiane < moyenne", {
   }
   expect_lt(value_of("floor"), value_of("median"))
   expect_lt(value_of("median"), value_of("mean"))
+})
+
+test_that("le plafond LFL borne la moyenne à 50 000 EUR par titulaire", {
+  anchors <- whisker_config("salary_anchors")$anchors
+  cap <- Filter(function(a) a$id == "lfl-plafond-2025", anchors)[[1]]
+  expect_identical(cap$statistic, "roster_cap")
+  expect_equal(as.numeric(cap$value) / 5, 50000)
+})
+
+test_that("chaque ligue du schéma a une règle de publication salariale explicite", {
+  config <- whisker_config("salary_anchors")
+  ligues <- vapply(whisker_config("leagues")$leagues, function(l) l$id, character(1))
+  declarees <- vapply(config$distributions, function(d) d$league, character(1))
+  expect_setequal(ligues, declarees)
+  for (distribution in config$distributions) {
+    expect_true(is.logical(distribution$publish), info = distribution$league)
+    expect_true(nzchar(distribution$note), info = distribution$league)
+  }
 })
 
 test_that("le taux de non-résolution toléré est celui du brief", {

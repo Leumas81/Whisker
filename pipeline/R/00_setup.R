@@ -62,6 +62,15 @@ whisker_not_implemented <- function(step, phase) {
   )
 }
 
+# Bibliothèques internes : fonctions pures, testées isolément, sourcées par les étapes.
+whisker_source_lib <- function(paths = whisker_paths()) {
+  lib_dir <- file.path(paths$pipeline, "R", "lib")
+  for (file in sort(list.files(lib_dir, pattern = "\\.R$", full.names = TRUE))) {
+    source(file, local = globalenv())
+  }
+  invisible(lib_dir)
+}
+
 whisker_ensure_dirs <- function(paths = whisker_paths()) {
   for (directory in c(paths$raw, paths$interim, paths$diagnostics, paths$data_out)) {
     dir.create(directory, recursive = TRUE, showWarnings = FALSE)

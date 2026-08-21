@@ -1,0 +1,155 @@
+# Définition de `metric_std` — la métrique de performance dont tout le §4 dépend.
+#
+# Le brief l'emploie sans la définir. Elle est fixée ici, en un seul endroit, sous forme
+# lisible par une machine : le code R lit ce fichier, les tests le lisent aussi, et
+# docs/METHODE.md en expose la version rédigée. Changer la métrique se fait ici et nulle
+# part ailleurs.
+
+version: 1
+
+# ── Ce qu'on mesure ────────────────────────────────────────────────────────────────────
+#
+# Unité d'observation : une ligne joueur-game d'Oracle's Elixir (position != "team").
+#
+# Principe de sélection : on ne retient que des grandeurs soit relatives à l'adversaire
+# direct, soit relatives à la propre équipe du joueur. Les grandeurs absolues (dpm, or
+# total, kills bruts) mesurent surtout l'état de la partie — une équipe qui gagne gonfle
+# les compteurs de ses cinq joueurs — et contamineraient l'effet joueur par l'effet équipe
+# avant même que le modèle ait la chance de les séparer.
+
+components:
+  - key: gd15
+    label: "Différentiel d'or à 15 min"
+    expression: "golddiffat15"
+    nature: adversaire
+    note: "Écart d'or face à l'adversaire du même poste. Le cœur de la phase de lane."
+
+  - key: xpd15
+    label: "Différentiel d'expérience à 15 min"
+    expression: "xpdiffat15"
+    nature: adversaire
+    note: "Capte la pression exercée même sans avantage d'or, typiquement chez les tops."
+
+  - key: csd15
+    label: "Différentiel de farm à 15 min"
+    expression: "csdiffat15"
+    nature: adversaire
+
+  - key: dmgshare
+    label: "Part des dégâts de l'équipe"
+    expression: "damageshare"
+    nature: equipe
+
+  - key: rendement
+    label: "Rendement des ressources"
+    expression: "damageshare - earnedgoldshare"
+    nature: equipe
+    note: >-
+      Part des dégâts produits moins part de l'or consommé. Positif : le joueur convertit
+      mieux que ses coéquipiers ce qu'on lui donne. Neutre à la richesse de l'équipe, donc
+      l'un des composants les moins contaminés par le contexte.
+
+  - key: kp
+    label: "Participation aux éliminations"
+    expression: "ifelse(team_kills > 0, (kills + assists) / team_kills, 0)"
+    nature: equipe
+    note: "team_kills vient de la ligne agrégée (position == 'team') du même gameid et du même côté. Vaut 0 si l'équipe n'a réalisé aucune élimination."
+
+  - key: survie
+    label: "Survie"
+    expression: "-10 * deaths / (gamelength / 60)"
+    nature: individuel
+    note: "Morts pour dix minutes, signe inversé : moins mourir vaut mieux. Mourir est l'un des rares événements presque entièrement individuels."
+
+  - key: vision
+    label: "Score de vision par minute"
+    expression: "vspm"
+    nature: individuel
+
+# ── Quels composants comptent pour quel poste ──────────────────────────────────────────
+#
+# Un composant n'est retenu pour un poste que s'il y porte du signal joueur. Les exclusions
+# ci-dessous sont des hypothèses, pas des évidences : la phase 2 rapporte le coefficient de
+# corrélation intra-classe joueur de chaque composant par poste, et cette matrice est
+# révisée sur cette base si elle a tort.
+
+inclusion:
+  top: [gd15, xpd15, csd15, dmgshare, rendement, kp, survie]
+  jng: [gd15, xpd15, csd15, dmgshare, rendement, kp, survie, vision]
+  mid: [gd15, xpd15, csd15, dmgshare, rendement, kp, survie]
+  adc: [gd15, xpd15, csd15, dmgshare, rendement, kp, survie]
+  sup: [gd15, xpd15, rendement, kp, survie, vision]
+
+exclusion_rationale:
+  sup:
+    csd15: "Le farm d'un support est un sous-produit de son objet de départ, pas une performance."
+    dmgshare: "Structurellement plancher et peu variable : plus de bruit que de signal."
+  top:
+    vision: "Le score de vision d'un solo-laner reflète surtout l'économie de wards de l'équipe."
+  mid:
+    vision: "Idem."
+  adc:
+    vision: "Idem."
+
+# ── Traitement ─────────────────────────────────────────────────────────────────────────
+
+winsorize:
+  lower_quantile: 0.01
+  upper_quantile: 0.99
+  within: [role, season]
+  note: >-
+    Une partie de soixante minutes ou un game sans mourir ne doit pas dominer la moyenne
+    d'un joueur. Les queues sont ramenées aux centiles extrêmes, elles ne sont pas jetées.
+
+standardisation:
+  within: [role, season]
+  reference_league: LEC
+  min_reference_rows: 30
+  fallback: "saison adjacente"
+  note: >-
+    Chaque composant est centré-réduit sur la sous-population LEC du même poste et de la
+    même saison. Deux conséquences voulues. D'une part la LEC est l'étalon : un z de 0
+    signifie « joueur LEC moyen à ce poste cette saison-là », ce qui donne son sens à
+    l'équivalence inter-ligues du §4.2. D'autre part, standardiser par saison absorbe la
+    dérive du méta — inflation de l'or, durée des parties — sans absorber les écarts
+    entre ligues à l'intérieur d'une même saison, qui sont précisément ce que le §4.1
+    cherche à estimer.
+
+aggregation:
+  weights: unit
+  restandardise: true
+  rationale: >-
+    Poids égaux sur les composants centrés-réduits. Ce n'est pas un renoncement : sur des
+    prédicteurs corrélés et des effectifs modestes, les poids unitaires égalent ou battent
+    régulièrement les poids estimés en validation externe (Dawes, 1979, « The robust beauty
+    of improper linear models in decision making »). Des poids que j'inventerais seraient
+    arbitraires ; des poids estimés sur huit composants corrélés et quinze mille lignes
+    seraient instables, et leur incertitude devrait être propagée jusqu'aux intervalles
+    affichés. Le composite est recentré-réduit sur la même référence LEC, de sorte que
+    `metric_std` suive une loi centrée réduite chez le joueur LEC moyen du poste.
+
+# ── Ce qui sera vérifié en phase 2 avant de retenir cette définition ────────────────────
+sensitivity:
+  checks:
+    - id: pc1
+      label: "Première composante principale intra-poste"
+      accept_if: "rho de Spearman >= 0.95 avec le classement à poids unitaires"
+    - id: win_model
+      label: "Poids issus d'un modèle logistique du résultat de la partie"
+      accept_if: "rho de Spearman >= 0.95 avec le classement à poids unitaires"
+  note: >-
+    Si les trois pondérations donnent le même classement, le choix des poids n'a pas
+    d'importance et on le dit. Si elles divergent, la divergence est présentée au
+    propriétaire pour arbitrage plutôt que tranchée en silence.
+
+# ── Passage à l'indice affiché ─────────────────────────────────────────────────────────
+value_index:
+  formula: "50 + 15 * (BLUP_joueur / sigma_joueur)"
+  clip: [0, 100]
+  decimals: 1
+  note: >-
+    L'indice affiché n'est pas la moyenne des `metric_std` d'un joueur : c'est son effet
+    aléatoire estimé par le modèle du §4.1, divisé par l'écart-type de la distribution des
+    effets joueurs. L'échelle 50 ± 15 place un joueur LEC moyen à 50 et le meilleur d'une
+    ligue de cinquante titulaires vers 80. Les bornes de l'intervalle subissent la même
+    transformation, qui est monotone : l'ordre et la couverture sont préservés.
