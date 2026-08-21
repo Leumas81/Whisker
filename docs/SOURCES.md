@@ -31,13 +31,56 @@ pipeline. Les conditions d'usage sont listées ici pour qu'elles soient vérifia
 ## Ancres salariales
 
 - **Fichier** : [`pipeline/config/salary_anchors.yaml`](../pipeline/config/salary_anchors.yaml)
-- Chaque valeur porte sa source, son URL et sa date de relevé. Aucune n'est écrite en dur
-  dans un script, et un test R vérifie que ces trois champs sont renseignés.
+- Chaque valeur porte sa source, son URL, sa méthode d'obtention et deux dates : celle de la
+  publication et celle du relevé. Des tests vérifient que ces cinq champs sont renseignés,
+  qu'aucune URL n'est factice, et que toutes sont en HTTPS.
 
-> **À faire avant la mise en ligne.** Les trois ancres LEC 2025 (moyenne 240 000 €,
-> médiane 165 000 €, plancher 60 000 €) proviennent du brief et pointent pour l'instant vers
-> une URL factice. Elles doivent être remplacées par leur source primaire, avec sa date.
-> Tant que ce n'est pas fait, la calibration salariale n'est pas publiable.
+**Rappel qui commande tout le reste : aucun club ne publie ses salaires.** Ce qui suit se
+répartit en deux natures très différentes, et le site ne les présente jamais comme équivalentes.
+
+### Valeurs réglementaires — factuelles
+
+| Valeur | Montant | Source |
+|---|---|---|
+| Plancher LEC | 60 000 €/an | Règlement LEC de Riot Games |
+| Plafond LFL | 250 000 € pour les 5 titulaires | Règlement Financier Sportif LFL, saison 2025 |
+
+Le plancher LEC découle d'un minimum de 1 000 € bruts mensuels majoré de 1 000 € par semaine
+de match disputée. Le plafond LFL est projeté à 300 000 € en 2027.
+
+### Valeurs estimées — enquête journalistique
+
+| Valeur | Montant | Précision annoncée |
+|---|---|---|
+| Moyenne LEC 2025 | 240 000 € | ± 20 000 € dans plus de 95 % des cas |
+| Médiane LEC 2025 | 165 000 € | ± 10 000 € |
+
+Source : Sheep Esports, enquête « Everything about LEC salaries unveiled » signée LEC Wooloo,
+publiée le 20 janvier 2025. Rémunérations des cinquante joueurs actifs de LEC sur les splits
+Summer 2024 et Winter 2025, recoupées auprès de sources confidentielles. Les salaires
+individuels n'ont volontairement pas été publiés par l'enquête, et ce site n'en dispose donc
+pas davantage.
+
+La même enquête publie des moyennes par poste — mid 345 000 €, jungle 250 000 €, ADC
+240 000 €, top 192 000 €, support 168 000 € — qui servent ici de contrôle de plausibilité, pas
+de calibration.
+
+### LFL : sources insuffisantes, aucune estimation publiée
+
+La seule fourchette disponible date de novembre 2022 : 1 500 à 12 000 € mensuels sur onze mois
+payés, recueillie sur le plateau de *L'Apéritif de Solary* auprès de Paul Arrivé (*L'Équipe*)
+et d'un agent de joueurs. Elle précède de trois ans le plafond salarial et décrit un marché
+qui n'existe plus sous cette forme.
+
+Un plafond qui majore sans situer, et une fourchette antérieure à ce plafond, ne suffisent pas
+à identifier une distribution. **Aucune estimation salariale n'est produite pour la LFL**, et
+la page le dit.
+
+### Ce qu'il reste à faire
+
+Sheep Esports a annoncé une nouvelle édition de son enquête pour 2026. Quand elle paraîtra,
+les deux ancres LEC devront être remplacées et `retrieved_at` mis à jour ; l'ancienne édition
+restera dans l'historique git.
 
 ---
 

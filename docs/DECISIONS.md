@@ -194,3 +194,89 @@ et son absence est annoncée à l'écran plutôt que silencieuse.
 qui suppose un intervalle par point, et le §1.2 pose qu'aucun chiffre n'est jamais affiché
 seul. Un scalaire dans l'historique aurait rendu l'un des deux irréalisable. Le coût est
 négligeable : deux nombres de plus par saison et par joueur.
+
+---
+
+## D-016 — `metric_std` est un composite relatif à poids égaux, standardisé sur la LEC
+
+**Décidé.** Le brief emploie `metric_std` sans le définir. La définition est fixée dans
+`pipeline/config/metric.yaml` : huit composants tous relatifs — à l'adversaire direct ou à la
+propre équipe du joueur — winsorisés aux centiles extrêmes, centrés-réduits par poste et par
+saison sur la population LEC, puis moyennés à poids égaux sur les seuls composants retenus
+pour le poste.
+
+**Pourquoi des grandeurs relatives.** Les compteurs absolus mesurent surtout l'état de la
+partie : une équipe qui gagne gonfle les statistiques de ses cinq joueurs. Les inclure
+mélangerait l'effet joueur et l'effet équipe avant que le modèle ait la chance de les séparer,
+et le §4.3 n'aurait plus rien à décomposer.
+
+**Pourquoi standardiser par saison et non par ligue-saison.** Standardiser par saison absorbe
+la dérive du méta sans absorber les écarts entre ligues à l'intérieur d'une saison — qui sont
+exactement ce que le §4.1 cherche à estimer. Standardiser par ligue-saison effacerait l'effet
+avant de l'estimer. Un test le vérifie sur données synthétiques : un décalage introduit entre
+ligues doit survivre à la standardisation.
+
+**Pourquoi la LEC comme référence.** Un zéro veut alors dire « joueur LEC moyen à ce poste
+cette saison-là », ce qui donne son sens à l'équivalence du §4.2. Et l'ajout d'une ligue ne
+déplace pas l'étalon : les estimations passées restent valides.
+
+**Pourquoi des poids égaux.** Des poids fixés au jugé seraient arbitraires ; des poids estimés
+sur huit composants corrélés seraient instables et leur incertitude devrait être propagée
+jusqu'aux intervalles affichés. Sur prédicteurs corrélés et effectifs modestes, les poids
+unitaires égalent ou battent régulièrement les poids estimés en validation externe
+(Dawes, 1979). Ils ont surtout ceci qu'on ne peut pas les ajuster pour obtenir le classement
+espéré.
+
+**Ce qui ferait changer d'avis.** La phase 2 recalcule le classement avec deux pondérations
+alternatives — première composante principale, et poids issus d'un modèle logistique du
+résultat. Un ρ de Spearman inférieur à 0,95 déclenche un arbitrage plutôt qu'un choix
+silencieux. De même, la matrice d'inclusion par poste est une hypothèse : la phase 2 rapporte
+la part de variance joueur de chaque composant, et un composant écarté à tort réintègre le
+calcul en changeant une ligne de configuration.
+
+---
+
+## D-017 — La configuration de la métrique est exécutable, pas décorative
+
+**Décidé.** Le code R évalue le champ `expression` de chaque composant plutôt que de recopier
+la formule. Un test vérifie qu'aucune clé de composant, aucun centile et aucun nom de ligue de
+référence n'apparaît en littéral dans `pipeline/R/lib/metric.R`.
+
+**Pourquoi.** Un fichier de configuration que le code se contente de commenter n'est pas une
+source de vérité : c'est une documentation qui dérive. Ce test est né d'un vrai défaut — la
+première version recopiait les huit formules en R, et rien n'aurait signalé une divergence.
+
+---
+
+## D-018 — Les ancres salariales sont sourcées, et leur nature est distinguée
+
+**Décidé.** Les valeurs du brief sont conservées, mais rattachées à leur source primaire et
+qualifiées. Deux natures, jamais présentées comme équivalentes : les valeurs **réglementaires**
+(plancher LEC de 60 000 €, plafond LFL de 250 000 €) sont factuelles ; les valeurs
+**estimées** (moyenne 240 000 €, médiane 165 000 €) viennent d'une enquête de Sheep Esports
+signée LEC Wooloo, publiée le 20 janvier 2025 sur les cinquante joueurs actifs de LEC, à
+± 20 000 € près.
+
+**Conséquence trouvée en chemin.** Avec ces ancres, la log-normale non tronquée place 12,1 %
+des joueurs de LEC sous le plancher réglementaire — ce qui ne peut pas exister. La troncature
+à gauche du §4.5 n'est donc pas conditionnelle, elle est obligatoire. La ré-identification
+numérique donne μ = 11,782 et σ = 0,921, restituant exactement les deux ancres.
+
+---
+
+## D-019 — La LFL ne reçoit aucune estimation salariale
+
+**Décidé.** Une ligue n'est calibrée que si elle porte au moins deux moments indépendants
+relevés sur la même période. La LFL n'en a pas : un plafond réglementaire de 2025 qui majore
+la moyenne sans la situer, et une fourchette déclarative de 2022 antérieure à ce plafond.
+`salaryQuintile` et `salaryBand` deviennent donc nullables dans le schéma, et le fichier
+`salary.json` gagne une liste `excluded` qui nomme les ligues écartées et la raison.
+
+**Pourquoi rendre l'absence explicite.** Un champ nul sans explication se lit comme un bug.
+Une ligue nommée dans `excluded` avec sa raison se lit comme une décision. Le §5.6 demande un
+site qui dit ce qu'il sait et ce qu'il ignore : c'en est l'application la plus directe.
+
+**Écart au brief, signalé.** Le §3.3 donnait ces deux champs comme toujours présents.
+
+**Ce qui ferait changer d'avis.** Une enquête LFL comparable à celle de Sheep Esports sur la
+LEC, ou toute source donnant une médiane sur la même période que le plafond.
