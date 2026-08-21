@@ -1,0 +1,92 @@
+name: pipeline
+
+# Recalcul hebdomadaire des estimations.
+#
+# Le pipeline tourne ici et nulle part ailleurs : le propriétaire n'a rien à exécuter.
+# Il produit les cinq JSON, les valide contre les schémas, et ne les commite que si la
+# validation passe — un jeu de données invalide n'atteint jamais le site.
+
+on:
+  schedule:
+    # Lundi 04h00 UTC : les splits se jouent le week-end, les données sont stabilisées.
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: "Étapes à rejouer (vide = toutes)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  recalculer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.4.2"
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-renv@v2
+        with:
+          working-directory: pipeline
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Installer les dépendances Node
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache des téléchargements sources
+        uses: actions/cache@v4
+        with:
+          path: pipeline/raw
+          key: sources-${{ github.run_id }}
+          restore-keys: sources-
+
+      - name: Exécuter le pipeline
+        working-directory: pipeline
+        run: Rscript run_all.R ${{ github.event.inputs.steps }}
+
+      - name: Valider les cinq JSON contre les schémas
+        run: node tools/validate-data.mjs --require-all
+
+      - name: Vérifier que les types suivent les schémas
+        run: node tools/gen-types.mjs --check
+
+      - name: Construire le site avec les nouvelles données
+        run: pnpm --filter whisker-web run build
+
+      - name: Conserver les diagnostics des modèles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics
+          path: pipeline/diagnostics/
+          retention-days: 30
+
+      - name: Commiter les données si elles ont changé
+        run: |
+          git config user.name "whisker-pipeline"
+          git config user.email "pipeline@whisker.invalid"
+          git add web/src/data
+          if git diff --cached --quiet; then
+            echo "Aucun changement de données : rien à commiter."
+          else
+            git commit -m "data(pipeline): recalcul hebdomadaire des estimations"
+            git push
+          fi
