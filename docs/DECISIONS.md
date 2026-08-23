@@ -391,3 +391,50 @@ sur les données réelles.
 **Ce que cela implique.** Les phases 1 à 3 sont écrites et testées ; elles ne sont pas
 *validées sur les vraies données*. Le premier passage du workflow `pipeline.yml` en CI, où le
 réseau n'est pas contraint, est l'épreuve qui reste à passer.
+
+---
+
+## D-028 — La pagination Cargo exige un tri explicite
+
+**Décidé.** `whisker_cargo_query` passe systématiquement un `order_by` à l'API — par défaut
+le premier champ demandé, sous sa forme qualifiée — et déduplique le résultat en filet.
+
+**Pourquoi.** Sans tri explicite, l'API ne garantit aucun ordre entre deux requêtes, et la
+pagination par `offset` rend alors des lignes en double d'une page à l'autre tout en en
+omettant d'autres. Constaté sur la source réelle : 590 lignes rendues pour 587 identifiants
+distincts. Un pipeline qui compte ses joueurs aurait compté faux, sans jamais lever d'erreur.
+
+**Comment c'est apparu.** En exécutant `tests/live/test-cargo-live.R` contre lol.fandom.com.
+C'est précisément ce à quoi sert un contrôle en ligne : aucun test hors réseau ne pouvait
+révéler ce comportement.
+
+---
+
+## D-029 — La limitation de débit de l'API Cargo est traitée comme transitoire
+
+**Décidé.** Fandom signale la limitation dans le corps de la réponse, avec un code HTTP 200 :
+`req_retry` ne la voit pas. `whisker_cargo_fetch` la reconnaît, purge l'entrée de cache
+fautive et réessaie en doublant l'attente, jusqu'à six fois.
+
+**Pourquoi.** Sur une adresse mutualisée, la limitation est intermittente : la même requête
+passe quelques secondes plus tard. Abandonner une exécution de pipeline hebdomadaire pour une
+seconde de trop serait absurde. Après six tentatives, l'erreur dit explicitement que
+l'adresse est probablement mutualisée et que la CI, elle, dispose d'une adresse dédiée.
+
+**Vérifié.** La reprise a été observée à l'œuvre : cinq tentatives, attente portée de 2 à
+32 secondes, puis succès.
+
+---
+
+## D-030 — Lighthouse est mesuré localement, sur le site construit
+
+**Décidé.** `pnpm lighthouse` sert `web/dist` en local, audite quatre pages représentatives
+et échoue si un score de performance ou d'accessibilité descend sous 95.
+
+**Pourquoi.** Le §7 place cette exigence après le déploiement. La mesurer avant a deux
+vertus : le résultat existe sans dépendre d'un hébergeur, et il ne varie pas avec la latence
+d'un CDN — donc il est reproductible et attribuable au code.
+
+**Résultat au 23 août 2026.** Accueil, joueurs et méthode à 100 partout. Vieillissement à 96
+en performance, le reste à 100 : le coût est le fragment Observable Plot, 259 Ko, chargé sur
+cette seule page.

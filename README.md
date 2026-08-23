@@ -69,6 +69,8 @@ pipeline R. Pour rejouer une seule étape : `node tools/verify.mjs types`.
 | `Rscript pipeline/run_all.R 04_model_league` | Rejoue une seule étape |
 | `Rscript pipeline/fixtures/generate.R` | Produit un jeu de développement synthétique |
 | `pnpm verify:release` | Vérifie, puis refuse de publier des données synthétiques |
+| `pnpm lighthouse` | Audite le site construit, échoue sous 95 en performance ou accessibilité |
+| `pnpm test:cargo` | Vérifie l’ingestion Leaguepedia contre la source réelle |
 
 ## Où lire quoi
 
