@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="WHISKER — ce que valent les joueurs, avec la marge d'erreur">
+  <rect width="1200" height="630" fill="#F5F6F7"/>
+  <text x="80" y="120" font-family="Archivo, Helvetica, Arial, sans-serif" font-size="30" letter-spacing="4" fill="#5C6874">WHISKER</text>
+  <text x="80" y="240" font-family="Archivo, Helvetica, Arial, sans-serif" font-weight="700" font-size="68" fill="#16202B">CE QUE VALENT LES JOUEURS,</text>
+  <text x="80" y="316" font-family="Archivo, Helvetica, Arial, sans-serif" font-weight="700" font-size="68" fill="#16202B">AVEC LA MARGE D&#8217;ERREUR.</text>
+
+  <g stroke="#C3CBD2" stroke-width="3">
+    <line x1="80" y1="410" x2="330" y2="410"/><line x1="80" y1="398" x2="80" y2="422"/><line x1="330" y1="398" x2="330" y2="422"/>
+    <line x1="140" y1="470" x2="470" y2="470"/><line x1="140" y1="458" x2="140" y2="482"/><line x1="470" y1="458" x2="470" y2="482"/>
+    <line x1="240" y1="530" x2="700" y2="530"/><line x1="240" y1="518" x2="240" y2="542"/><line x1="700" y1="518" x2="700" y2="542"/>
+  </g>
+  <circle cx="215" cy="410" r="9" fill="#B4275C"/>
+  <circle cx="300" cy="470" r="9" fill="#B4275C"/>
+  <circle cx="450" cy="530" r="9" fill="#B4275C"/>
+
+  <text x="760" y="540" font-family="'IBM Plex Mono', monospace" font-size="22" fill="#5C6874">Plus la barre est longue,</text>
+  <text x="760" y="572" font-family="'IBM Plex Mono', monospace" font-size="22" fill="#5C6874">moins on en sait.</text>
+</svg>

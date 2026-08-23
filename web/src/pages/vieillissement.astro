@@ -1,0 +1,52 @@
+---
+import Base from "~/layouts/Base.astro";
+import AgingCurves from "~/components/AgingCurves";
+import NoData from "~/components/NoData.astro";
+import Estimand from "~/components/Estimand.astro";
+import { hasData, readData } from "~/lib/data";
+
+const ready = hasData("aging") && hasData("meta");
+const aging = ready ? readData("aging") : null;
+const meta = ready ? readData("meta") : null;
+---
+
+<Base
+  title="Vieillissement"
+  description="À quel âge un joueur décline, selon son rôle. Courbes par rôle avec rubans d'incertitude et âge de pic."
+  wide
+>
+  <h1 class="font-display text-2xl uppercase tracking-tight">Vieillissement</h1>
+  <p class="mt-3 max-w-prose text-muted">
+    À quel âge un joueur atteint son sommet, et à quelle vitesse il en redescend. La réponse
+    dépend du rôle — et de ce qu&rsquo;on accepte de ne pas voir.
+  </p>
+
+  <div class="mt-8">
+    {
+      ready ? (
+        <>
+          <Estimand label="Performance par âge" level={meta!.confidenceLevel} />
+          <div class="mt-4">
+            <AgingCurves client:load aging={aging!} confidenceLevel={meta!.confidenceLevel} />
+          </div>
+        </>
+      ) : (
+        <NoData what="Les courbes de vieillissement" />
+      )
+    }
+  </div>
+
+  <section class="mt-12 max-w-prose">
+    <h2 class="font-display text-lg uppercase tracking-tight">Lire ces courbes</h2>
+    <p class="mt-3 text-muted">
+      L&rsquo;axe vertical est en écarts-types de performance, pas en indice de valeur : il
+      s&rsquo;agit ici de la forme de la trajectoire, pas du niveau absolu d&rsquo;un joueur.
+      Le ruban est l&rsquo;intervalle ; il s&rsquo;élargit aux âges où peu de joueurs sont observés.
+    </p>
+    <p class="mt-3 text-muted">
+      Comparer deux rôles se fait avec précaution : les métriques d&rsquo;un support sont plus
+      contextuelles que celles d&rsquo;un ADC, et la comparaison porte autant sur ce qu&rsquo;on
+      mesure que sur ce qui se passe.
+    </p>
+  </section>
+</Base>

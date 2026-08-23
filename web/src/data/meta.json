@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-08-23T19:23:20Z",
+  "pipelineCommit": "e96a92330415309e20df3458360f9b63fccf57da",
+  "lastDataDate": "2026-08-23",
+  "confidenceLevel": 0.8,
+  "bootstrapReplicates": 60,
+  "synthetic": true,
+  "counts": {
+    "players": 204,
+    "playerGames": 14400,
+    "teams": 20,
+    "leagues": 2,
+    "transitions": 36
+  },
+  "unmatchedRate": 0,
+  "sources": [
+    {
+      "name": "Oracle's Elixir",
+      "url": "https://oracleselixir.com/tools/downloads",
+      "licence": "Usage libre avec attribution",
+      "retrievedAt": "2026-08-23"
+    },
+    {
+      "name": "Leaguepedia / Fandom",
+      "url": "https://lol.fandom.com",
+      "licence": "CC BY-SA",
+      "retrievedAt": "2026-08-23"
+    }
+  ]
+}
+

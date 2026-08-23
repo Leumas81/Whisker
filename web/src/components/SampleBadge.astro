@@ -1,0 +1,28 @@
+---
+import type { Reliability } from "~/generated/types";
+import { formatInteger } from "~/lib/format";
+
+interface Props {
+  games: number;
+  reliability: Reliability;
+  compact?: boolean;
+}
+
+const { games, reliability, compact = false } = Astro.props;
+
+const LABELS: Record<Reliability, string> = {
+  high: "échantillon suffisant",
+  medium: "échantillon moyen",
+  low: "échantillon limité",
+};
+---
+
+<span class="inline-flex items-center gap-1.5 text-xs">
+  <span data-numeric class="text-muted">n&nbsp;=&nbsp;{formatInteger(games)}</span>
+  {
+    reliability === "low" && (
+      <span class="text-flag" title={LABELS.low} aria-label={LABELS.low}>⚑</span>
+    )
+  }
+  {!compact && <span class="text-muted">· {LABELS[reliability]}</span>}
+</span>

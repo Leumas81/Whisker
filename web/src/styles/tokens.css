@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
 /**
+ * Polices auto-hébergées. Aucune requête tierce au chargement (§8) : les woff2 sont
+ * empaquetés avec le site. Archivo est pris en version variable pour son axe de largeur,
+ * qui donne le « Expanded » demandé sans charger une seconde famille.
+ */
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+/**
  * Instrumentation scientifique, pas esport.
  *
  * Une seule couleur vive existe : --mark, réservée au point estimé. Elle ne doit jamais
@@ -12,12 +23,14 @@
   --color-paper: #f5f6f7;
   --color-panel: #e4e8eb;
   --color-rule: #c3cbd2;
-  --color-muted: #6f7e8c;
+  /* Assombri depuis le #6F7E8C du §5.2 : cette valeur donnait 3,85:1 sur le fond de page,
+     sous le seuil AA de 4,5. La teinte est conservée, le contraste passe à 5,26 sur le fond de page et 4,62 sur les panneaux. */
+  --color-muted: #5c6874;
   --color-mark: #b4275c;
-  --color-flag: #a66a00;
+  /* Idem : le #A66A00 du §5.2 donnait 4,14:1. */
+  --color-flag: #8f5c00;
 
-  /* Les fichiers woff2 auto-hébergés arrivent en phase 4 ; aucune requête tierce (§8). */
-  --font-display: "Archivo Expanded", "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 
@@ -37,6 +50,13 @@
 }
 
 @layer base {
+  /* L'axe de largeur d'Archivo, poussé à son maximum : c'est le « Expanded » du §5.2. */
+  .font-display,
+  h1,
+  h2 {
+    font-variation-settings: "wdth" 125;
+  }
+
   html {
     background-color: var(--color-paper);
     color: var(--color-ink);
@@ -77,4 +97,53 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/**
+ * Forest plot — la seule animation du site.
+ *
+ * Chaque moustache est tracée en deux moitiés partant du point estimé. Le pointillé se
+ * résorbe de l'intérieur vers l'extérieur : l'image raconte une estimation qui converge.
+ * L'animation ne se déclenche que si le visiteur ne demande pas moins de mouvement, et
+ * l'état par défaut est le trait entier — jamais un graphique vide.
+ */
+@keyframes dessin-intervalle {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .forest-whisker {
+    animation: dessin-intervalle 400ms ease-out both;
+  }
+}
+
+.forest-row:hover .forest-row-band,
+.forest-row:focus-visible .forest-row-band {
+  fill: var(--color-panel);
+}
+
+.forest-row:focus-visible {
+  outline: none;
+}
+
+.forest-row:focus-visible .forest-row-band {
+  stroke: var(--color-ink);
+  stroke-width: 1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
 }

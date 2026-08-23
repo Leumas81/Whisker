@@ -40,7 +40,17 @@ export default tseslint.config(
   {
     files: ["**/*.tsx"],
     plugins: { "jsx-a11y": jsxA11y },
-    rules: jsxA11y.configs.recommended.rules,
+    rules: {
+      ...jsxA11y.configs.recommended.rules,
+      /**
+       * Une zone défilante doit être atteignable au clavier, sans quoi son contenu est
+       * inaccessible à qui ne fait pas défiler à la souris — c'est ce qu'exige la règle
+       * « scrollable-region-focusable » d'axe. La règle jsx-a11y l'interdit par défaut sur
+       * un conteneur non interactif : les deux se contredisent, et axe a raison. On autorise
+       * donc le tabindex sur un conteneur explicitement annoncé comme région.
+       */
+      "jsx-a11y/no-noninteractive-tabindex": ["error", { roles: ["tabpanel", "region"] }],
+    },
   },
 
   {

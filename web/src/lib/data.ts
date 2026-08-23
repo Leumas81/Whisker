@@ -1,16 +1,24 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { AgingFile, LeaguesFile, MetaFile, PlayersFile, SalaryFile } from "~/generated/types";
 
 /**
  * Chargement des données produites par le pipeline, au moment du build uniquement.
  *
  * Rien n'est lu à l'exécution : le site est statique. Les types viennent de
- * src/generated/types.ts, lui-même dérivé des schémas — si le pipeline renomme un champ
- * sans mettre le schéma à jour, la validation échoue en CI avant d'arriver ici.
+ * src/generated/types.ts, lui-même dérivé des schémas — si le pipeline renomme un champ sans
+ * mettre le schéma à jour, la validation échoue en CI avant d'arriver ici.
+ *
+ * La résolution passe par `import.meta.glob`, que Vite évalue relativement à CE fichier
+ * source. Un chemin calculé depuis `import.meta.url` ne survivrait pas au bundling : le module
+ * exécuté n'est pas celui qu'on lit, et les données paraîtraient absentes alors qu'elles sont là.
  */
-const dataDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "data");
+const modules = import.meta.glob<{ default: unknown }>("../data/*.json", { eager: true });
+
+const byName = new Map<string, unknown>(
+  Object.entries(modules).map(([path, module]) => [
+    path.replace(/^.*\//, "").replace(/\.json$/, ""),
+    module.default,
+  ]),
+);
 
 export type DataFileName = "players" | "leagues" | "aging" | "salary" | "meta";
 
@@ -22,18 +30,16 @@ interface DataShapes {
   meta: MetaFile;
 }
 
-function filePath(name: DataFileName): string {
-  return path.join(dataDir, `${name}.json`);
-}
+const ALL: DataFileName[] = ["players", "leagues", "aging", "salary", "meta"];
 
 /** Vrai si le pipeline a déjà produit ce fichier. */
 export function hasData(name: DataFileName): boolean {
-  return fs.existsSync(filePath(name));
+  return byName.has(name);
 }
 
 /** Vrai si les cinq fichiers sont là. */
 export function hasAllData(): boolean {
-  return (["players", "leagues", "aging", "salary", "meta"] satisfies DataFileName[]).every(hasData);
+  return ALL.every(hasData);
 }
 
 /**
@@ -41,12 +47,12 @@ export function hasAllData(): boolean {
  * une page qui se construit sans données afficherait des chiffres inventés par omission.
  */
 export function readData<Name extends DataFileName>(name: Name): DataShapes[Name] {
-  const target = filePath(name);
-  if (!fs.existsSync(target)) {
+  const payload = byName.get(name);
+  if (payload === undefined) {
     throw new Error(
       `Données absentes : ${name}.json n'a pas été produit.\n` +
         `Lancez le pipeline R (pipeline/run_all.R) ou le workflow pipeline.yml.`,
     );
   }
-  return JSON.parse(fs.readFileSync(target, "utf8")) as DataShapes[Name];
+  return payload as DataShapes[Name];
 }

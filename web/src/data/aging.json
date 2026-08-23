@@ -1,0 +1,1885 @@
+{
+  "variants": [
+    {
+      "id": "all",
+      "label": "Tous les joueurs",
+      "survivorshipNote": "Sujette au biais de survie : les joueurs qui déclinent quittent le circuit, si bien que la courbe remonte en fin de carrière sans qu'aucun joueur ne se soit amélioré.",
+      "minSeasons": 1,
+      "curves": [
+        {
+          "role": "adc",
+          "peakAge": {
+            "point": 24.5,
+            "lower": 23,
+            "upper": 26
+          },
+          "nPlayers": 40,
+          "nGames": 2880,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -2.3713,
+                "lower": -2.5836,
+                "upper": -2.159
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -2.1813,
+                "lower": -2.3679,
+                "upper": -1.9947
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.9936,
+                "lower": -2.1634,
+                "upper": -1.8239
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -1.8107,
+                "lower": -1.9716,
+                "upper": -1.6498
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -1.6347,
+                "lower": -1.7907,
+                "upper": -1.4787
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -1.467,
+                "lower": -1.619,
+                "upper": -1.3151
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -1.308,
+                "lower": -1.4566,
+                "upper": -1.1595
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -1.1577,
+                "lower": -1.3045,
+                "upper": -1.011
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -1.0161,
+                "lower": -1.1628,
+                "upper": -0.8694
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.8845,
+                "lower": -1.0319,
+                "upper": -0.7371
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.765,
+                "lower": -0.9133,
+                "upper": -0.6168
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.6614,
+                "lower": -0.811,
+                "upper": -0.5117
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.5777,
+                "lower": -0.7293,
+                "upper": -0.4261
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.5181,
+                "lower": -0.6718,
+                "upper": -0.3644
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.4854,
+                "lower": -0.6409,
+                "upper": -0.33
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.4807,
+                "lower": -0.6383,
+                "upper": -0.3231
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.5026,
+                "lower": -0.6636,
+                "upper": -0.3416
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.5479,
+                "lower": -0.7128,
+                "upper": -0.3829
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.6119,
+                "lower": -0.7801,
+                "upper": -0.4436
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -0.6895,
+                "lower": -0.8611,
+                "upper": -0.518
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -0.7761,
+                "lower": -0.9557,
+                "upper": -0.5966
+              }
+            }
+          ]
+        },
+        {
+          "role": "jng",
+          "peakAge": {
+            "point": 23,
+            "lower": 20.5,
+            "upper": 24.5
+          },
+          "nPlayers": 41,
+          "nGames": 2880,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.3701,
+                "lower": -1.5974,
+                "upper": -1.1429
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.2183,
+                "lower": -1.4114,
+                "upper": -1.0252
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.075,
+                "lower": -1.2451,
+                "upper": -0.9049
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -0.9488,
+                "lower": -1.1071,
+                "upper": -0.7905
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -0.8465,
+                "lower": -0.9997,
+                "upper": -0.6932
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -0.7701,
+                "lower": -0.9202,
+                "upper": -0.6201
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.7165,
+                "lower": -0.8641,
+                "upper": -0.569
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.6785,
+                "lower": -0.8248,
+                "upper": -0.5322
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.6483,
+                "lower": -0.7942,
+                "upper": -0.5023
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.6203,
+                "lower": -0.766,
+                "upper": -0.4746
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.5932,
+                "lower": -0.7387,
+                "upper": -0.4477
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.5708,
+                "lower": -0.7173,
+                "upper": -0.4243
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.5608,
+                "lower": -0.7098,
+                "upper": -0.4117
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.5724,
+                "lower": -0.7245,
+                "upper": -0.4203
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.6134,
+                "lower": -0.7682,
+                "upper": -0.4587
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.6879,
+                "lower": -0.8457,
+                "upper": -0.5301
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.7949,
+                "lower": -0.9578,
+                "upper": -0.632
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.9293,
+                "lower": -1.0989,
+                "upper": -0.7598
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -1.0838,
+                "lower": -1.2599,
+                "upper": -0.9078
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -1.2508,
+                "lower": -1.4329,
+                "upper": -1.0686
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -1.4238,
+                "lower": -1.6155,
+                "upper": -1.2322
+              }
+            },
+            {
+              "age": 27.5,
+              "value": {
+                "point": -1.599,
+                "lower": -1.8097,
+                "upper": -1.3884
+              }
+            },
+            {
+              "age": 28,
+              "value": {
+                "point": -1.7745,
+                "lower": -2.0171,
+                "upper": -1.532
+              }
+            }
+          ]
+        },
+        {
+          "role": "mid",
+          "peakAge": {
+            "point": 23,
+            "lower": 22,
+            "upper": 24
+          },
+          "nPlayers": 42,
+          "nGames": 2880,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.3536,
+                "lower": -1.6133,
+                "upper": -1.0939
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.2768,
+                "lower": -1.4913,
+                "upper": -1.0624
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.198,
+                "lower": -1.3806,
+                "upper": -1.0154
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -1.1147,
+                "lower": -1.2802,
+                "upper": -0.9493
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -1.0245,
+                "lower": -1.1821,
+                "upper": -0.867
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -0.9254,
+                "lower": -1.0778,
+                "upper": -0.773
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.8168,
+                "lower": -0.9648,
+                "upper": -0.6688
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.7007,
+                "lower": -0.8463,
+                "upper": -0.5551
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.5819,
+                "lower": -0.7275,
+                "upper": -0.4363
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.4688,
+                "lower": -0.6153,
+                "upper": -0.3223
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.3722,
+                "lower": -0.5195,
+                "upper": -0.2249
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.3035,
+                "lower": -0.4518,
+                "upper": -0.1552
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.2727,
+                "lower": -0.4228,
+                "upper": -0.1227
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.2862,
+                "lower": -0.4381,
+                "upper": -0.1344
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.3452,
+                "lower": -0.4978,
+                "upper": -0.1926
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.4451,
+                "lower": -0.5978,
+                "upper": -0.2924
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.5763,
+                "lower": -0.73,
+                "upper": -0.4225
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.7264,
+                "lower": -0.8825,
+                "upper": -0.5703
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.8836,
+                "lower": -1.0415,
+                "upper": -0.7257
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -1.0387,
+                "lower": -1.1969,
+                "upper": -0.8804
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -1.1865,
+                "lower": -1.346,
+                "upper": -1.0271
+              }
+            },
+            {
+              "age": 27.5,
+              "value": {
+                "point": -1.3262,
+                "lower": -1.4932,
+                "upper": -1.1592
+              }
+            },
+            {
+              "age": 28,
+              "value": {
+                "point": -1.4593,
+                "lower": -1.6449,
+                "upper": -1.2738
+              }
+            }
+          ]
+        },
+        {
+          "role": "sup",
+          "peakAge": {
+            "point": 23,
+            "lower": 21.5,
+            "upper": 25
+          },
+          "nPlayers": 39,
+          "nGames": 2880,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.571,
+                "lower": -1.7585,
+                "upper": -1.3834
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.3962,
+                "lower": -1.5648,
+                "upper": -1.2276
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.2229,
+                "lower": -1.381,
+                "upper": -1.0647
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -1.0532,
+                "lower": -1.2077,
+                "upper": -0.8988
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -0.8902,
+                "lower": -1.0433,
+                "upper": -0.7371
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -0.7375,
+                "lower": -0.8889,
+                "upper": -0.5861
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.5989,
+                "lower": -0.7484,
+                "upper": -0.4495
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.4783,
+                "lower": -0.6269,
+                "upper": -0.3297
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.3787,
+                "lower": -0.5276,
+                "upper": -0.2297
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.3021,
+                "lower": -0.4518,
+                "upper": -0.1524
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.2495,
+                "lower": -0.3998,
+                "upper": -0.0993
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.2205,
+                "lower": -0.3716,
+                "upper": -0.0694
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.2134,
+                "lower": -0.3659,
+                "upper": -0.061
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.226,
+                "lower": -0.38,
+                "upper": -0.0719
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.2553,
+                "lower": -0.4109,
+                "upper": -0.0997
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.2985,
+                "lower": -0.4568,
+                "upper": -0.1402
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.3528,
+                "lower": -0.5164,
+                "upper": -0.1893
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.4158,
+                "lower": -0.587,
+                "upper": -0.2447
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.4854,
+                "lower": -0.6643,
+                "upper": -0.3066
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -0.5598,
+                "lower": -0.7451,
+                "upper": -0.3746
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -0.6375,
+                "lower": -0.8288,
+                "upper": -0.4461
+              }
+            }
+          ]
+        },
+        {
+          "role": "top",
+          "peakAge": {
+            "point": 24,
+            "lower": 22,
+            "upper": 26
+          },
+          "nPlayers": 42,
+          "nGames": 2880,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.8568,
+                "lower": -2.0851,
+                "upper": -1.6285
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.7032,
+                "lower": -1.8991,
+                "upper": -1.5073
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.5499,
+                "lower": -1.7233,
+                "upper": -1.3765
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -1.3976,
+                "lower": -1.5587,
+                "upper": -1.2364
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -1.2475,
+                "lower": -1.4027,
+                "upper": -1.0923
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -1.1017,
+                "lower": -1.2529,
+                "upper": -0.9505
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.9628,
+                "lower": -1.1108,
+                "upper": -0.8148
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.8339,
+                "lower": -0.9799,
+                "upper": -0.6878
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.7181,
+                "lower": -0.8634,
+                "upper": -0.5727
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.6182,
+                "lower": -0.7634,
+                "upper": -0.473
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.5365,
+                "lower": -0.6815,
+                "upper": -0.3915
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.4744,
+                "lower": -0.6196,
+                "upper": -0.3292
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.4324,
+                "lower": -0.5785,
+                "upper": -0.2863
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.4101,
+                "lower": -0.5574,
+                "upper": -0.2628
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.4067,
+                "lower": -0.5551,
+                "upper": -0.2583
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.4207,
+                "lower": -0.5705,
+                "upper": -0.2709
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.4504,
+                "lower": -0.6025,
+                "upper": -0.2983
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.4937,
+                "lower": -0.6488,
+                "upper": -0.3385
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.5482,
+                "lower": -0.7071,
+                "upper": -0.3893
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -0.6115,
+                "lower": -0.7776,
+                "upper": -0.4453
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -0.681,
+                "lower": -0.8641,
+                "upper": -0.4978
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tenured",
+      "label": "Joueurs à 3 saisons au moins",
+      "survivorshipNote": "Le biais est atténué en n'observant que des carrières longues, au prix d'un échantillon plus petit et d'une sélection sur les joueurs qui ont duré.",
+      "minSeasons": 3,
+      "curves": [
+        {
+          "role": "adc",
+          "peakAge": {
+            "point": 24.5,
+            "lower": 23,
+            "upper": 26
+          },
+          "nPlayers": 27,
+          "nGames": 2429,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -2.1552,
+                "lower": -2.3932,
+                "upper": -1.9172
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.9831,
+                "lower": -2.1969,
+                "upper": -1.7692
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.8128,
+                "lower": -2.0109,
+                "upper": -1.6147
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -1.6465,
+                "lower": -1.8362,
+                "upper": -1.4567
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -1.4858,
+                "lower": -1.671,
+                "upper": -1.3006
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -1.3316,
+                "lower": -1.5131,
+                "upper": -1.1501
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -1.1835,
+                "lower": -1.3616,
+                "upper": -1.0054
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -1.0408,
+                "lower": -1.2168,
+                "upper": -0.8648
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.9034,
+                "lower": -1.0788,
+                "upper": -0.7279
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.7724,
+                "lower": -0.9479,
+                "upper": -0.5969
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.6512,
+                "lower": -0.8269,
+                "upper": -0.4755
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.5445,
+                "lower": -0.7207,
+                "upper": -0.3682
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.458,
+                "lower": -0.6353,
+                "upper": -0.2806
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.3969,
+                "lower": -0.5756,
+                "upper": -0.2182
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.3648,
+                "lower": -0.5448,
+                "upper": -0.1848
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.3625,
+                "lower": -0.5442,
+                "upper": -0.1808
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.388,
+                "lower": -0.5726,
+                "upper": -0.2035
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.4368,
+                "lower": -0.6249,
+                "upper": -0.2487
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.503,
+                "lower": -0.694,
+                "upper": -0.312
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -0.5807,
+                "lower": -0.7748,
+                "upper": -0.3867
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -0.6652,
+                "lower": -0.8664,
+                "upper": -0.464
+              }
+            }
+          ]
+        },
+        {
+          "role": "jng",
+          "peakAge": {
+            "point": 23,
+            "lower": 20,
+            "upper": 24.5
+          },
+          "nPlayers": 27,
+          "nGames": 2174,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.2992,
+                "lower": -1.5623,
+                "upper": -1.0361
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.1515,
+                "lower": -1.379,
+                "upper": -0.9239
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.0107,
+                "lower": -1.2138,
+                "upper": -0.8077
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -0.8849,
+                "lower": -1.0749,
+                "upper": -0.6949
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -0.7805,
+                "lower": -0.9648,
+                "upper": -0.5963
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -0.7003,
+                "lower": -0.8814,
+                "upper": -0.5192
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.6419,
+                "lower": -0.8207,
+                "upper": -0.4631
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.5993,
+                "lower": -0.7768,
+                "upper": -0.4218
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.5652,
+                "lower": -0.7422,
+                "upper": -0.3883
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.5347,
+                "lower": -0.711,
+                "upper": -0.3583
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.5064,
+                "lower": -0.682,
+                "upper": -0.3309
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.4838,
+                "lower": -0.6594,
+                "upper": -0.3083
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.474,
+                "lower": -0.651,
+                "upper": -0.297
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.4854,
+                "lower": -0.6645,
+                "upper": -0.3064
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.5254,
+                "lower": -0.7064,
+                "upper": -0.3444
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.5977,
+                "lower": -0.7812,
+                "upper": -0.4143
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.7016,
+                "lower": -0.8894,
+                "upper": -0.5139
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.8323,
+                "lower": -1.0261,
+                "upper": -0.6384
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.9825,
+                "lower": -1.1825,
+                "upper": -0.7824
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -1.1449,
+                "lower": -1.351,
+                "upper": -0.9388
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -1.3135,
+                "lower": -1.5289,
+                "upper": -1.0982
+              }
+            },
+            {
+              "age": 27.5,
+              "value": {
+                "point": -1.4846,
+                "lower": -1.7179,
+                "upper": -1.2514
+              }
+            },
+            {
+              "age": 28,
+              "value": {
+                "point": -1.6564,
+                "lower": -1.9197,
+                "upper": -1.393
+              }
+            }
+          ]
+        },
+        {
+          "role": "mid",
+          "peakAge": {
+            "point": 23,
+            "lower": 22,
+            "upper": 24.5
+          },
+          "nPlayers": 21,
+          "nGames": 2196,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.2761,
+                "lower": -1.6074,
+                "upper": -0.9448
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.1845,
+                "lower": -1.4661,
+                "upper": -0.903
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.093,
+                "lower": -1.3384,
+                "upper": -0.8475
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -1.0013,
+                "lower": -1.2258,
+                "upper": -0.7768
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -0.9086,
+                "lower": -1.1226,
+                "upper": -0.6945
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -0.8131,
+                "lower": -1.0206,
+                "upper": -0.6055
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.7128,
+                "lower": -0.9152,
+                "upper": -0.5104
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.607,
+                "lower": -0.8063,
+                "upper": -0.4078
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.4975,
+                "lower": -0.6958,
+                "upper": -0.2993
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.3902,
+                "lower": -0.5885,
+                "upper": -0.1919
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.2949,
+                "lower": -0.4931,
+                "upper": -0.0966
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.2234,
+                "lower": -0.4217,
+                "upper": -0.0251
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.1875,
+                "lower": -0.3865,
+                "upper": 0.0116
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.1955,
+                "lower": -0.3958,
+                "upper": 0.0047
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.2504,
+                "lower": -0.4514,
+                "upper": -0.0494
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.3483,
+                "lower": -0.5497,
+                "upper": -0.1468
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.4791,
+                "lower": -0.6819,
+                "upper": -0.2762
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.6292,
+                "lower": -0.8346,
+                "upper": -0.4239
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.7852,
+                "lower": -0.9927,
+                "upper": -0.5777
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -0.9368,
+                "lower": -1.1452,
+                "upper": -0.7284
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -1.0785,
+                "lower": -1.2881,
+                "upper": -0.8688
+              }
+            },
+            {
+              "age": 27.5,
+              "value": {
+                "point": -1.2095,
+                "lower": -1.4252,
+                "upper": -0.9938
+              }
+            },
+            {
+              "age": 28,
+              "value": {
+                "point": -1.3325,
+                "lower": -1.5633,
+                "upper": -1.1017
+              }
+            }
+          ]
+        },
+        {
+          "role": "sup",
+          "peakAge": {
+            "point": 23,
+            "lower": 21,
+            "upper": 25
+          },
+          "nPlayers": 26,
+          "nGames": 2547,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.3704,
+                "lower": -1.5887,
+                "upper": -1.1521
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.2194,
+                "lower": -1.4194,
+                "upper": -1.0194
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.0686,
+                "lower": -1.2579,
+                "upper": -0.8794
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -0.9189,
+                "lower": -1.1035,
+                "upper": -0.7342
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -0.7717,
+                "lower": -0.9543,
+                "upper": -0.5892
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -0.6302,
+                "lower": -0.8106,
+                "upper": -0.4498
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.4981,
+                "lower": -0.6762,
+                "upper": -0.3199
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.3799,
+                "lower": -0.5568,
+                "upper": -0.2031
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.2801,
+                "lower": -0.4569,
+                "upper": -0.1033
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.202,
+                "lower": -0.3794,
+                "upper": -0.0247
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.1478,
+                "lower": -0.3257,
+                "upper": 0.0301
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.1176,
+                "lower": -0.2963,
+                "upper": 0.061
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.1104,
+                "lower": -0.2903,
+                "upper": 0.0695
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.1235,
+                "lower": -0.3048,
+                "upper": 0.0578
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.1538,
+                "lower": -0.3365,
+                "upper": 0.0289
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.198,
+                "lower": -0.3829,
+                "upper": -0.0131
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.2531,
+                "lower": -0.4423,
+                "upper": -0.0638
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.3165,
+                "lower": -0.5121,
+                "upper": -0.1208
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.3862,
+                "lower": -0.5885,
+                "upper": -0.1839
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -0.4606,
+                "lower": -0.6686,
+                "upper": -0.2526
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -0.5381,
+                "lower": -0.7516,
+                "upper": -0.3246
+              }
+            }
+          ]
+        },
+        {
+          "role": "top",
+          "peakAge": {
+            "point": 24,
+            "lower": 22,
+            "upper": 26
+          },
+          "nPlayers": 24,
+          "nGames": 2123,
+          "points": [
+            {
+              "age": 17,
+              "value": {
+                "point": -1.7168,
+                "lower": -1.9754,
+                "upper": -1.4582
+              }
+            },
+            {
+              "age": 17.5,
+              "value": {
+                "point": -1.5535,
+                "lower": -1.7832,
+                "upper": -1.3238
+              }
+            },
+            {
+              "age": 18,
+              "value": {
+                "point": -1.3907,
+                "lower": -1.6011,
+                "upper": -1.1802
+              }
+            },
+            {
+              "age": 18.5,
+              "value": {
+                "point": -1.2292,
+                "lower": -1.4297,
+                "upper": -1.0288
+              }
+            },
+            {
+              "age": 19,
+              "value": {
+                "point": -1.0707,
+                "lower": -1.2665,
+                "upper": -0.8749
+              }
+            },
+            {
+              "age": 19.5,
+              "value": {
+                "point": -0.9173,
+                "lower": -1.1101,
+                "upper": -0.7245
+              }
+            },
+            {
+              "age": 20,
+              "value": {
+                "point": -0.7719,
+                "lower": -0.962,
+                "upper": -0.5817
+              }
+            },
+            {
+              "age": 20.5,
+              "value": {
+                "point": -0.6376,
+                "lower": -0.826,
+                "upper": -0.4492
+              }
+            },
+            {
+              "age": 21,
+              "value": {
+                "point": -0.5178,
+                "lower": -0.7053,
+                "upper": -0.3302
+              }
+            },
+            {
+              "age": 21.5,
+              "value": {
+                "point": -0.4151,
+                "lower": -0.6021,
+                "upper": -0.2281
+              }
+            },
+            {
+              "age": 22,
+              "value": {
+                "point": -0.3317,
+                "lower": -0.5181,
+                "upper": -0.1453
+              }
+            },
+            {
+              "age": 22.5,
+              "value": {
+                "point": -0.2688,
+                "lower": -0.455,
+                "upper": -0.0826
+              }
+            },
+            {
+              "age": 23,
+              "value": {
+                "point": -0.2267,
+                "lower": -0.4135,
+                "upper": -0.04
+              }
+            },
+            {
+              "age": 23.5,
+              "value": {
+                "point": -0.2052,
+                "lower": -0.3929,
+                "upper": -0.0174
+              }
+            },
+            {
+              "age": 24,
+              "value": {
+                "point": -0.2032,
+                "lower": -0.3919,
+                "upper": -0.0146
+              }
+            },
+            {
+              "age": 24.5,
+              "value": {
+                "point": -0.2198,
+                "lower": -0.4096,
+                "upper": -0.03
+              }
+            },
+            {
+              "age": 25,
+              "value": {
+                "point": -0.2533,
+                "lower": -0.4451,
+                "upper": -0.0615
+              }
+            },
+            {
+              "age": 25.5,
+              "value": {
+                "point": -0.302,
+                "lower": -0.4964,
+                "upper": -0.1076
+              }
+            },
+            {
+              "age": 26,
+              "value": {
+                "point": -0.3637,
+                "lower": -0.5614,
+                "upper": -0.1661
+              }
+            },
+            {
+              "age": 26.5,
+              "value": {
+                "point": -0.436,
+                "lower": -0.6399,
+                "upper": -0.232
+              }
+            },
+            {
+              "age": 27,
+              "value": {
+                "point": -0.516,
+                "lower": -0.7352,
+                "upper": -0.2968
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

@@ -269,6 +269,7 @@ describe("traçabilité", () => {
       lastDataDate: "2026-08-17",
       confidenceLevel: 0.8,
       bootstrapReplicates: 2000,
+      synthetic: false,
       counts: { players: 400, playerGames: 15000, teams: 40, leagues: 2, transitions: 43 },
       unmatchedRate: 0.004,
       sources: [
@@ -292,6 +293,7 @@ describe("traçabilité", () => {
       lastDataDate: "2026-08-17",
       confidenceLevel: 0.8,
       bootstrapReplicates: 2000,
+      synthetic: false,
       counts: { players: 400, playerGames: 15000, teams: 40, leagues: 2, transitions: 43 },
       unmatchedRate: 0.05,
       sources: [

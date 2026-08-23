@@ -1,0 +1,14 @@
+---
+interface Props {
+  label: string;
+  level?: number;
+  sample?: number;
+}
+const { label, level, sample } = Astro.props;
+
+const parts = [label.toUpperCase()];
+if (level !== undefined) parts.push(`IC ${Math.round(level * 100)} %`);
+if (sample !== undefined) parts.push(`n = ${sample.toLocaleString("fr-FR")}`);
+---
+
+<p class="font-mono text-xs uppercase tracking-wide text-muted">{parts.join(" · ")}</p>

@@ -13,11 +13,11 @@ test.describe("accueil", () => {
     expect(errors).toEqual([]);
   });
 
-  test("annonce l'état réel du pipeline plutôt que des chiffres d'exemple", async ({ page }) => {
+  test("montre le classement, pas une promesse", async ({ page }) => {
     await page.goto("/");
-    const state = page.getByTestId("pipeline-state");
-    await expect(state).toBeVisible();
-    await expect(state).not.toHaveText("");
+    // Le hero est le forest plot lui-même : le produit se comprend sans clic (§5.4).
+    await expect(page.locator("svg circle[data-estimate-mark]").first()).toBeVisible();
+    await expect(page.getByText("Chaque barre est une estimation")).toBeVisible();
   });
 
   test("porte les attributions obligatoires", async ({ page }) => {

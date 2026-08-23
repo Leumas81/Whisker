@@ -1,0 +1,239 @@
+---
+import Base from "~/layouts/Base.astro";
+import ForestPlot, { type ForestRow } from "~/components/ForestPlot";
+import Estimate from "~/components/Estimate.astro";
+import SampleBadge from "~/components/SampleBadge.astro";
+import Estimand from "~/components/Estimand.astro";
+import { hasAllData, readData } from "~/lib/data";
+import { ROLE_LABELS, formatBand, formatDate, formatInteger, formatNumber } from "~/lib/format";
+import type { Player } from "~/generated/types";
+
+export async function getStaticPaths() {
+  if (!hasAllData()) return [];
+  const { players } = readData("players");
+  return players.map((player) => ({
+    params: { slug: player.slug },
+    props: { player, players },
+  }));
+}
+
+interface Props {
+  player: Player;
+  players: Player[];
+}
+
+const { player, players } = Astro.props;
+const meta = readData("meta");
+const salary = readData("salary");
+
+// Le joueur situé parmi ceux de son rôle et de sa ligue : une estimation ne veut rien dire
+// sans ceux à qui on la compare.
+const peers = players
+  .filter((candidate) => candidate.role === player.role && candidate.league === player.league)
+  .sort((a, b) => b.valueIndex.point - a.valueIndex.point);
+const rank = peers.findIndex((candidate) => candidate.slug === player.slug) + 1;
+
+const context: ForestRow[] = peers.slice(0, 12).map((candidate) => ({
+  slug: candidate.slug,
+  name: candidate.name,
+  role: candidate.role,
+  team: candidate.team,
+  games: candidate.games,
+  estimate: candidate.valueIndex,
+  reliability: candidate.reliability,
+}));
+if (!context.some((row) => row.slug === player.slug)) {
+  context.push({
+    slug: player.slug,
+    name: player.name,
+    role: player.role,
+    team: player.team,
+    games: player.games,
+    estimate: player.valueIndex,
+    reliability: player.reliability,
+  });
+}
+
+const roleMedian = (() => {
+  const values = peers.map((candidate) => candidate.valueIndex.point).sort((a, b) => a - b);
+  if (values.length === 0) return undefined;
+  const middle = Math.floor(values.length / 2);
+  return values.length % 2 === 0
+    ? ((values[middle - 1] ?? 0) + (values[middle] ?? 0)) / 2
+    : values[middle];
+})();
+
+const salaryExcluded = salary.excluded.find((entry) => entry.league === player.league);
+---
+
+<Base
+  title={player.name}
+  description={`Indice de valeur de ${player.name} (${ROLE_LABELS[player.role]}, ${player.team}), avec intervalle et décomposition joueur/équipe.`}
+  wide
+>
+  <header class="border-b border-rule pb-6">
+    <p class="font-mono text-xs uppercase tracking-wide text-muted">
+      {ROLE_LABELS[player.role]} · {player.league}
+    </p>
+    <h1 class="mt-2 font-display text-3xl uppercase tracking-tight">{player.name}</h1>
+    <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-sm">
+      <div><dt class="inline text-muted">Équipe :</dt> <dd class="inline">{player.team}</dd></div>
+      <div>
+        <dt class="inline text-muted">Âge :</dt>
+        <dd class="inline" data-numeric>{formatNumber(player.age, 1)} ans</dd>
+      </div>
+      <div>
+        <dt class="inline text-muted">Fin de contrat :</dt>
+        <dd class="inline">{player.contractEnd ? formatDate(player.contractEnd) : "inconnue"}</dd>
+      </div>
+      <div>
+        <dt class="inline text-muted">Fiabilité :</dt>
+        <dd class="inline">
+          <SampleBadge games={player.games} reliability={player.reliability} />
+        </dd>
+      </div>
+    </dl>
+  </header>
+
+  {
+    player.reliability === "low" && (
+      <p class="mt-6 border border-flag bg-panel p-4 text-sm">
+        <strong>Échantillon limité.</strong> {formatInteger(player.games)} games seulement.
+        L&rsquo;intervalle est large et ce joueur est exclu des classements par défaut. Ce
+        n&rsquo;est pas un jugement sur son niveau : c&rsquo;est l&rsquo;aveu qu&rsquo;on n&rsquo;en
+        sait pas assez.
+      </p>
+    )
+  }
+
+  <section class="mt-10">
+    <Estimand label="Indice de valeur" level={meta.confidenceLevel} sample={player.games} />
+    <p class="mt-3 text-2xl">
+      <Estimate estimate={player.valueIndex} />
+    </p>
+    <p class="mt-2 text-sm text-muted">
+      {rank > 0 && (
+        <>
+          <span data-numeric>{rank}</span>ᵉ sur <span data-numeric>{peers.length}</span>{" "}
+          {ROLE_LABELS[player.role]} de {player.league} — au point estimé. Les intervalles
+          ci-dessous disent à quel point ce rang est solide.
+        </>
+      )}
+    </p>
+
+    <div class="mt-6">
+      <ForestPlot
+        client:load
+        rows={context}
+        reference={roleMedian}
+        referenceLabel={`médiane ${ROLE_LABELS[player.role]} ${player.league}`}
+        confidenceLevel={meta.confidenceLevel}
+        linkPrefix="/joueur/"
+      />
+      <p class="mt-3 text-sm text-muted">
+        Les douze premiers {ROLE_LABELS[player.role]} de {player.league}, et {player.name}.
+        Le rang exact est celui indiqué plus haut, pas la place occupée dans ce graphique.
+      </p>
+    </div>
+  </section>
+
+  <section class="mt-12 max-w-prose">
+    <Estimand label="Part joueur / part contexte" level={meta.confidenceLevel} />
+    <p class="mt-3 text-xl">
+      <Estimate estimate={player.playerShare} decimals={2} />
+    </p>
+    <p class="mt-3 text-muted">
+      Part de la variation de performance attribuable au joueur plutôt qu&rsquo;à son équipe et
+      à sa saison. Une valeur élevée ne veut pas dire « meilleur joueur » : elle veut dire que
+      ce qu&rsquo;on mesure chez lui dépend davantage de lui.
+    </p>
+    <p class="mt-3 text-sm text-muted">
+      Cette part est estimée par rôle. Elle est mécaniquement plus basse pour les supports,
+      dont les métriques sont plus contextuelles — comparer les rôles entre eux sur ce chiffre
+      n&rsquo;aurait pas de sens.
+    </p>
+  </section>
+
+  <section class="mt-12">
+    <Estimand label="Trajectoire par saison" level={meta.confidenceLevel} />
+    <table class="mt-4 w-full max-w-2xl border-collapse text-sm">
+      <thead>
+        <tr class="border-b border-rule text-left font-mono text-xs uppercase tracking-wide text-muted">
+          <th scope="col" class="py-2 pr-3">Saison</th>
+          <th scope="col" class="py-2 pr-3">Ligue</th>
+          <th scope="col" class="py-2 pr-3">Équipe</th>
+          <th scope="col" class="py-2 pr-3 text-right">n</th>
+          <th scope="col" class="py-2 text-right">Indice</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          player.history.map((season) => (
+            <tr class="border-b border-rule/60">
+              <td class="py-2 pr-3" data-numeric>{season.season}</td>
+              <td class="py-2 pr-3 font-mono text-xs">{season.league}</td>
+              <td class="py-2 pr-3 text-muted">{season.team}</td>
+              <td class="py-2 pr-3 text-right" data-numeric>{formatInteger(season.games)}</td>
+              <td class="py-2 text-right">
+                <Estimate estimate={season.valueIndex} />
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+
+  {
+    player.lecEquivalent && (
+      <section class="mt-12 max-w-prose">
+        <Estimand label="Équivalence LEC attendue" level={meta.confidenceLevel} />
+        <p class="mt-3 text-xl">
+          <Estimate estimate={player.lecEquivalent} decimals={2} />
+        </p>
+        <p class="mt-3 border border-flag bg-panel p-4 text-sm">
+          <strong>Biais de sélection non corrigé.</strong> Cette projection repose sur les
+          joueurs qui ont effectivement franchi le pas. Ceux qui n&rsquo;ont pas été jugés assez
+          bons pour monter n&rsquo;apparaissent nulle part, ce qui rend l&rsquo;estimation
+          probablement optimiste.
+        </p>
+      </section>
+    )
+  }
+
+  <section class="mt-12 max-w-prose">
+    <Estimand label="Position salariale" />
+    {
+      player.salaryQuintile && player.salaryBand ? (
+        <>
+          <p class="mt-3 text-xl">
+            Quintile <span data-numeric data-estimate-mark class="font-medium text-mark">{player.salaryQuintile}</span>
+            <span class="text-muted"> sur 5</span>
+          </p>
+          <p class="mt-2" data-numeric>{formatBand(player.salaryBand)}</p>
+          <p class="mt-3 text-sm text-muted">
+            {salary.disclaimer} Cette fourchette est celle du quintile, pas celle de ce joueur :
+            elle décrit une position dans une distribution, pas une rémunération.
+          </p>
+        </>
+      ) : (
+        <p class="mt-3 text-muted">
+          Aucune estimation pour la {player.league}.
+          {salaryExcluded ? ` ${salaryExcluded.reason}` : ""}
+        </p>
+      )
+    }
+  </section>
+
+  <section class="mt-12 border-t border-rule pt-6 text-sm text-muted">
+    <Estimand label="Sources et période" />
+    <p class="mt-3">
+      Performances : Oracle&rsquo;s Elixir. Contrat et âge : Leaguepedia. Dernière donnée
+      retenue le {formatDate(meta.lastDataDate)}. Estimations produites par le pipeline{" "}
+      <span data-numeric>{meta.pipelineCommit.slice(0, 7)}</span>.
+    </p>
+    <p class="mt-2">
+      Une erreur sur cette fiche ? <a href="/methode#contestation" class="underline">Signalez-la</a>.
+    </p>
+  </section>
+</Base>

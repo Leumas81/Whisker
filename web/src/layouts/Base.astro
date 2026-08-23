@@ -1,12 +1,18 @@
 ---
 import "~/styles/tokens.css";
+import Nav from "~/components/Nav.astro";
+import { hasData, readData } from "~/lib/data";
+import { formatConfidence, formatDate, formatInteger } from "~/lib/format";
 
 interface Props {
   title: string;
   description: string;
+  wide?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, wide = false } = Astro.props;
+const meta = hasData("meta") ? readData("meta") : null;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://whisker.pages.dev");
 ---
 
 <!doctype html>
@@ -16,21 +22,62 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · WHISKER</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WHISKER" />
+    <meta property="og:title" content={`${title} · WHISKER`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:image" content={new URL("/og.svg", canonical).href} />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body>
-    <main class="mx-auto max-w-3xl px-6 py-16">
+  <body class="flex min-h-screen flex-col">
+    {
+      meta?.synthetic && (
+        <div class="border-b border-flag bg-panel px-6 py-3 text-sm" role="status">
+          <p class="mx-auto max-w-6xl">
+            <strong>Jeu de développement.</strong> Les chiffres de ce site sont synthétiques :
+            le pipeline n&rsquo;a pas encore tourné sur les données réelles. Rien ici ne décrit
+            un joueur existant.
+          </p>
+        </div>
+      )
+    }
+
+    <Nav />
+
+    <main class:list={["mx-auto w-full flex-1 px-6 py-12", wide ? "max-w-6xl" : "max-w-3xl"]}>
       <slot />
     </main>
 
-    <footer class="mx-auto max-w-3xl border-t border-rule px-6 py-8 text-sm text-muted">
-      <p>
-        Données de performance :
-        <a class="underline" href="https://oracleselixir.com/tools/downloads">Oracle&rsquo;s Elixir</a>.
-        Contrats, âges et rosters :
-        <a class="underline" href="https://lol.fandom.com">Leaguepedia / Fandom</a>.
-      </p>
-      <p class="mt-2">WHISKER n&rsquo;est pas affilié à Riot Games.</p>
+    <footer class="border-t border-rule">
+      <div class="mx-auto max-w-6xl px-6 py-8 text-sm text-muted">
+        {
+          meta && (
+            <p class="font-mono text-xs uppercase tracking-wide">
+              Généré le {formatDate(meta.generatedAt)} · dernière donnée le{" "}
+              {formatDate(meta.lastDataDate)} ·{" "}
+              <span data-numeric>{formatInteger(meta.counts.players)}</span> joueurs,{" "}
+              <span data-numeric>{formatInteger(meta.counts.playerGames)}</span> games ·{" "}
+              {formatConfidence(meta.confidenceLevel)} · pipeline{" "}
+              <span data-numeric>{meta.pipelineCommit.slice(0, 7)}</span>
+            </p>
+          )
+        }
+        <p class="mt-3">
+          Données de performance :
+          <a class="underline" href="https://oracleselixir.com/tools/downloads">Oracle&rsquo;s Elixir</a>.
+          Contrats, âges et rosters :
+          <a class="underline" href="https://lol.fandom.com">Leaguepedia / Fandom</a>.
+        </p>
+        <p class="mt-2">
+          Estimation statistique. Aucun salaire réel n&rsquo;est connu de ce site.
+          WHISKER n&rsquo;est pas affilié à Riot Games.
+        </p>
+      </div>
     </footer>
   </body>
 </html>

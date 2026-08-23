@@ -1,0 +1,179 @@
+{
+  "strengths": [
+    {
+      "league": "LEC",
+      "season": 2021,
+      "source": "transfers",
+      "strength": {
+        "point": 0.2852,
+        "lower": -0.3209,
+        "upper": 0.3957
+      },
+      "nPlayers": 4,
+      "nGames": 110
+    },
+    {
+      "league": "LEC",
+      "season": 2022,
+      "source": "transfers",
+      "strength": {
+        "point": 0.3213,
+        "lower": -0.3909,
+        "upper": 0.3213
+      },
+      "nPlayers": 11,
+      "nGames": 201
+    },
+    {
+      "league": "LEC",
+      "season": 2023,
+      "source": "transfers",
+      "strength": {
+        "point": 0.2376,
+        "lower": -0.3394,
+        "upper": 0.3844
+      },
+      "nPlayers": 13,
+      "nGames": 240
+    },
+    {
+      "league": "LEC",
+      "season": 2024,
+      "source": "transfers",
+      "strength": {
+        "point": 0.0906,
+        "lower": -0.38,
+        "upper": 0.2293
+      },
+      "nPlayers": 9,
+      "nGames": 164
+    },
+    {
+      "league": "LEC",
+      "season": 2025,
+      "source": "transfers",
+      "strength": {
+        "point": 0.1906,
+        "lower": -0.3834,
+        "upper": 0.3474
+      },
+      "nPlayers": 12,
+      "nGames": 214
+    },
+    {
+      "league": "LEC",
+      "season": 2026,
+      "source": "transfers",
+      "strength": {
+        "point": 0.2521,
+        "lower": -0.3798,
+        "upper": 0.2521
+      },
+      "nPlayers": 17,
+      "nGames": 331
+    },
+    {
+      "league": "LFL",
+      "season": 2019,
+      "source": "transfers",
+      "strength": {
+        "point": -0.0963,
+        "lower": -0.3331,
+        "upper": 0.3551
+      },
+      "nPlayers": 3,
+      "nGames": 255
+    },
+    {
+      "league": "LFL",
+      "season": 2020,
+      "source": "transfers",
+      "strength": {
+        "point": -0.1243,
+        "lower": -0.2601,
+        "upper": 0.402
+      },
+      "nPlayers": 10,
+      "nGames": 277
+    },
+    {
+      "league": "LFL",
+      "season": 2021,
+      "source": "transfers",
+      "strength": {
+        "point": -0.2536,
+        "lower": -0.3785,
+        "upper": 0.2853
+      },
+      "nPlayers": 12,
+      "nGames": 228
+    },
+    {
+      "league": "LFL",
+      "season": 2022,
+      "source": "transfers",
+      "strength": {
+        "point": -0.1974,
+        "lower": -0.3144,
+        "upper": 0.293
+      },
+      "nPlayers": 6,
+      "nGames": 95
+    },
+    {
+      "league": "LFL",
+      "season": 2023,
+      "source": "transfers",
+      "strength": {
+        "point": -0.2427,
+        "lower": -0.2427,
+        "upper": 0.3597
+      },
+      "nPlayers": 9,
+      "nGames": 124
+    },
+    {
+      "league": "LFL",
+      "season": 2024,
+      "source": "transfers",
+      "strength": {
+        "point": -0.2238,
+        "lower": -0.2238,
+        "upper": 0.426
+      },
+      "nPlayers": 14,
+      "nGames": 207
+    },
+    {
+      "league": "LFL",
+      "season": 2025,
+      "source": "transfers",
+      "strength": {
+        "point": -0.1513,
+        "lower": -0.2864,
+        "upper": 0.3069
+      },
+      "nPlayers": 7,
+      "nGames": 87
+    }
+  ],
+  "equivalences": [
+    {
+      "from": "LFL",
+      "to": "LEC",
+      "coefficient": {
+        "point": 0.740362580281614,
+        "lower": 0.632226549967811,
+        "upper": 0.825050411229113
+      },
+      "nTransitions": 36,
+      "selectionCorrection": "none",
+      "retentionOneYear": {
+        "point": 0.5,
+        "lower": 0.395559826467358,
+        "upper": 0.604440173532642
+      }
+    }
+  ]
+}
+

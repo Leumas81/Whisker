@@ -1,0 +1,212 @@
+---
+import Base from "~/layouts/Base.astro";
+import Estimand from "~/components/Estimand.astro";
+import { Content as Methode } from "../../../docs/METHODE.md";
+import { hasData, readData } from "~/lib/data";
+import { formatDate, formatEuros } from "~/lib/format";
+
+const salary = hasData("salary") ? readData("salary") : null;
+const meta = hasData("meta") ? readData("meta") : null;
+---
+
+<Base
+  title="Méthode"
+  description="Ce que chaque modèle répond, sur quelles données, avec quelles limites. Sources, hypothèses et moyen de contestation."
+>
+  <h1 class="font-display text-2xl uppercase tracking-tight">Méthode</h1>
+  <p class="mt-3 text-muted">
+    Ce site dit ce qu&rsquo;il sait et ce qu&rsquo;il ignore. Cette page est la seconde moitié.
+  </p>
+
+  <article class="prose-whisker mt-10">
+    <Methode />
+  </article>
+
+  {
+    salary && (
+      <section class="mt-14 border-t border-rule pt-8">
+        <Estimand label="Ancres salariales" />
+        <p class="mt-3 text-muted">
+          Chaque valeur ayant servi à la calibration, avec sa source et sa nature. Une valeur
+          réglementaire est un fait ; une valeur d&rsquo;enquête est une estimation.
+        </p>
+        <ul class="mt-4 space-y-4 text-sm">
+          {salary.anchors.map((anchor) => (
+            <li class="border-b border-rule/60 pb-3">
+              <p>
+                <span class="font-mono text-xs uppercase tracking-wide text-muted">
+                  {anchor.league} {anchor.season} · {anchor.statistic}
+                </span>
+              </p>
+              <p class="mt-1" data-numeric>
+                {anchor.value !== null
+                  ? formatEuros(anchor.value)
+                  : `${formatEuros(anchor.valueLower ?? 0)} – ${formatEuros(anchor.valueUpper ?? 0)}`}
+                {anchor.uncertainty ? ` (± ${formatEuros(anchor.uncertainty)})` : ""}
+              </p>
+              <p class="mt-1 text-muted">{anchor.method}</p>
+              <p class="mt-1">
+                <a href={anchor.url} class="underline" rel="noopener">{anchor.source}</a>
+                <span class="text-muted"> · publié le {formatDate(anchor.publishedAt)}</span>
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        {salary.excluded.length > 0 && (
+          <div class="mt-6 border border-rule bg-panel p-4 text-sm">
+            <p class="font-mono text-xs uppercase tracking-wide text-muted">
+              Ligues sans estimation salariale
+            </p>
+            {salary.excluded.map((entry) => (
+              <p class="mt-2">
+                <strong>{entry.league}</strong> — {entry.reason}
+              </p>
+            ))}
+          </div>
+        )}
+      </section>
+    )
+  }
+
+  <section id="contestation" class="mt-14 scroll-mt-8 border-t border-rule pt-8">
+    <Estimand label="Contestation" />
+    <h2 class="mt-3 font-display text-lg uppercase tracking-tight">Contester une estimation</h2>
+    <p class="mt-3 text-muted">
+      Un joueur, une équipe ou un agent qui conteste un chiffre de ce site peut le signaler.
+      Une contestation est traitée comme une donnée : elle peut mener à corriger une
+      correspondance d&rsquo;identité, à retirer un joueur, ou à documenter une limite.
+    </p>
+    <p class="mt-3 text-muted">
+      Aucun salaire réel n&rsquo;est connu de ce site. Les fourchettes affichées sont des
+      positions dans une distribution statistique, jamais des rémunérations observées.
+    </p>
+    <p class="mt-4">
+      <a
+        href="https://github.com/whisker/whisker/issues/new?labels=contestation"
+        class="underline"
+        rel="noopener"
+      >
+        Ouvrir une contestation
+      </a>
+    </p>
+  </section>
+
+  {
+    meta && (
+      <section class="mt-14 border-t border-rule pt-8 text-sm text-muted">
+        <Estimand label="Reproductibilité" />
+        <p class="mt-3">
+          Ces estimations ont été produites par le pipeline{" "}
+          <span data-numeric>{meta.pipelineCommit.slice(0, 12)}</span>, le{" "}
+          {formatDate(meta.generatedAt)}, à partir de données arrêtées au{" "}
+          {formatDate(meta.lastDataDate)}. Tous les intervalles sont à{" "}
+          <span data-numeric>{Math.round(meta.confidenceLevel * 100)}&nbsp;%</span>, sur{" "}
+          <span data-numeric>{meta.bootstrapReplicates.toLocaleString("fr-FR")}</span> réplications
+          de bootstrap.
+        </p>
+      </section>
+    )
+  }
+</Base>
+
+<style is:global>
+  /* Rendu du Markdown de METHODE.md, dans le vocabulaire typographique du site. */
+  /* Le titre de METHODE.md répète celui de la page : le document reste correct lu seul,
+     mais il n'a pas à apparaître deux fois ici. */
+  .prose-whisker > h1:first-child {
+    display: none;
+  }
+  .prose-whisker h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-whisker h3 {
+    font-weight: 500;
+    font-size: var(--text-lg);
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-whisker p,
+  .prose-whisker ul,
+  .prose-whisker ol {
+    margin-bottom: 0.9rem;
+    max-width: 68ch;
+  }
+  .prose-whisker ul,
+  .prose-whisker ol {
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  .prose-whisker ol {
+    list-style: decimal;
+  }
+  .prose-whisker li {
+    margin-bottom: 0.3rem;
+  }
+  .prose-whisker a {
+    text-decoration: underline;
+  }
+  .prose-whisker code,
+  .prose-whisker pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+  .prose-whisker pre {
+    background: var(--color-panel);
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+  .prose-whisker table {
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .prose-whisker table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.25rem;
+    font-size: var(--text-sm);
+  }
+  .prose-whisker th,
+  .prose-whisker td {
+    border-bottom: 1px solid var(--color-rule);
+    padding: 0.4rem 0.6rem 0.4rem 0;
+    text-align: left;
+  }
+  .prose-whisker th {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-muted);
+  }
+  .prose-whisker details {
+    border: 1px solid var(--color-rule);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .prose-whisker summary {
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .prose-whisker details > *:not(summary) {
+    margin-top: 0.75rem;
+  }
+  .prose-whisker hr {
+    border: 0;
+    border-top: 1px solid var(--color-rule);
+    margin: 2rem 0;
+  }
+  .prose-whisker blockquote {
+    border-left: 2px solid var(--color-rule);
+    padding-left: 1rem;
+    color: var(--color-muted);
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+import type { Estimate } from "~/generated/types";
+import { formatNumber } from "~/lib/format";
+
+interface Props {
+  estimate: Estimate;
+  decimals?: number;
+  suffix?: string;
+  /** Affiche le point sans son intervalle. Réservé aux contextes où l'intervalle est déjà là. */
+  pointOnly?: boolean;
+}
+
+const { estimate, decimals = 1, suffix = "", pointOnly = false } = Astro.props;
+---
+
+<span class="whitespace-nowrap" data-numeric>
+  <span data-estimate-mark class="text-mark font-medium">
+    {formatNumber(estimate.point, decimals)}{suffix}
+  </span>
+  {
+    !pointOnly && (
+      <span class="text-muted text-sm">
+        {" ["}{formatNumber(estimate.lower, decimals)}{suffix}&nbsp;–&nbsp;{formatNumber(estimate.upper, decimals)}{suffix}{"]"}
+      </span>
+    )
+  }
+</span>

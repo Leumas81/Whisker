@@ -10,7 +10,7 @@ import { expect, test } from "@playwright/test";
  */
 
 const MARK = "rgb(180, 39, 92)";
-const PAGES = ["/"];
+const PAGES = ["/", "/joueurs", "/vieillissement", "/traduction", "/methode"];
 
 for (const route of PAGES) {
   test(`--mark reste réservée aux estimations sur ${route}`, async ({ page }) => {

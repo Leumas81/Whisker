@@ -1,40 +1,140 @@
 ---
 import Base from "~/layouts/Base.astro";
-import { hasAllData } from "~/lib/data";
+import ForestPlot, { type ForestRow } from "~/components/ForestPlot";
+import NoData from "~/components/NoData.astro";
+import Estimand from "~/components/Estimand.astro";
+import { hasAllData, readData } from "~/lib/data";
+import { formatInteger } from "~/lib/format";
 
-/**
- * Page d'attente de la phase 0. Le hero — forest plot des dix meilleurs joueurs LEC —
- * est construit en phase 6, une fois le composant signature et les données disponibles.
- */
-const pipelineReady = hasAllData();
+const ready = hasAllData();
+const meta = ready ? readData("meta") : null;
+const players = ready ? readData("players").players : [];
+
+const top = players
+  .filter((player) => player.league === "LEC" && player.reliability !== "low")
+  .sort((a, b) => b.valueIndex.point - a.valueIndex.point)
+  .slice(0, 10);
+
+const rows: ForestRow[] = top.map((player) => ({
+  slug: player.slug,
+  name: player.name,
+  role: player.role,
+  team: player.team,
+  games: player.games,
+  estimate: player.valueIndex,
+  reliability: player.reliability,
+}));
+
+const lecMedian = (() => {
+  const values = players
+    .filter((player) => player.league === "LEC")
+    .map((player) => player.valueIndex.point)
+    .sort((a, b) => a - b);
+  if (values.length === 0) return undefined;
+  const middle = Math.floor(values.length / 2);
+  return values.length % 2 === 0
+    ? ((values[middle - 1] ?? 0) + (values[middle] ?? 0)) / 2
+    : values[middle];
+})();
+
+const cards = [
+  {
+    href: "/joueurs",
+    title: "Joueurs",
+    body: "Le classement complet, en tableau ou en graphique. Filtres par ligue, rôle, âge et volume de jeu.",
+  },
+  {
+    href: "/traduction",
+    title: "Traduction inter-ligues",
+    body: "Ce que vaudrait un joueur de LFL en LEC, avec le taux de base historique et le biais assumé.",
+  },
+  {
+    href: "/vieillissement",
+    title: "Vieillissement",
+    body: "L'âge de pic par rôle, et pourquoi la courbe remonte à tort en fin de carrière.",
+  },
+];
 ---
 
 <Base
   title="Accueil"
-  description="Les stats existent partout. Ici, on te dit ce qu'elles valent."
+  description="Les stats existent partout. Ici, on te dit ce qu'elles valent. Indices de valeur des joueurs LEC et LFL, avec intervalles."
+  wide
 >
-  <p class="font-mono text-xs uppercase tracking-wide text-muted">Socle technique · phase 0</p>
-
-  <h1 class="mt-4 font-display text-3xl uppercase leading-tight tracking-tight">
+  <h1 class="max-w-5xl font-display text-xl uppercase leading-tight tracking-tight sm:text-2xl lg:text-3xl">
     Ce que valent les joueurs,<br />avec la marge d&rsquo;erreur.
   </h1>
 
-  <p class="mt-6 max-w-prose">
-    Les stats existent partout. Ici, on te dit ce qu&rsquo;elles valent.
-  </p>
+  {
+    ready ? (
+      <section class="mt-10">
+        <Estimand label="Indice de valeur · LEC · dix premiers" level={meta!.confidenceLevel} />
+        <div class="mt-3">
+          <ForestPlot
+            client:load
+            rows={rows}
+            reference={lecMedian}
+            referenceLabel="médiane LEC"
+            confidenceLevel={meta!.confidenceLevel}
+            linkPrefix="/joueur/"
+          />
+        </div>
+        <p class="mt-3 text-muted">
+          Chaque barre est une estimation. Plus elle est longue, moins on en sait.
+        </p>
+        <p class="mt-2">
+          <a href="/joueurs" class="underline underline-offset-2">
+            Voir les {players.length} joueurs, en tableau ou en graphique
+          </a>
+        </p>
+      </section>
+    ) : (
+      <div class="mt-10">
+        <NoData what="Le classement des joueurs" />
+      </div>
+    )
+  }
 
-  <div class="mt-10 border border-rule bg-panel p-6">
-    <p class="font-mono text-xs uppercase tracking-wide text-muted">État du pipeline</p>
-    <p class="mt-2" data-testid="pipeline-state">
-      {
-        pipelineReady
-          ? "Les cinq jeux de données sont présents et validés."
-          : "Le pipeline n'a pas encore tourné. Aucune estimation n'est disponible."
-      }
-    </p>
-    <p class="mt-4 text-sm text-muted">
-      Aucune donnée d&rsquo;exemple n&rsquo;est affichée tant que le pipeline n&rsquo;a pas produit
-      de résultats réels : un chiffre inventé sur cette page vaudrait moins que pas de chiffre du tout.
-    </p>
-  </div>
+  <section class="mt-14 grid gap-px border border-rule bg-rule sm:grid-cols-3">
+    {
+      cards.map((card) => (
+        <a href={card.href} class="group bg-paper p-6 hover:bg-panel">
+          <h2 class="font-display text-lg uppercase tracking-tight group-hover:underline">
+            {card.title}
+          </h2>
+          <p class="mt-2 text-sm text-muted">{card.body}</p>
+        </a>
+      ))
+    }
+  </section>
+
+  {
+    meta && (
+      <section class="mt-12 border-t border-rule pt-6">
+        <Estimand label="Traçabilité" />
+        <dl class="mt-3 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+          <div class="flex justify-between border-b border-rule/60 py-1">
+            <dt class="text-muted">Joueurs exportés</dt>
+            <dd data-numeric>{formatInteger(meta.counts.players)}</dd>
+          </div>
+          <div class="flex justify-between border-b border-rule/60 py-1">
+            <dt class="text-muted">Lignes joueur-game</dt>
+            <dd data-numeric>{formatInteger(meta.counts.playerGames)}</dd>
+          </div>
+          <div class="flex justify-between border-b border-rule/60 py-1">
+            <dt class="text-muted">Équipes</dt>
+            <dd data-numeric>{formatInteger(meta.counts.teams)}</dd>
+          </div>
+          <div class="flex justify-between border-b border-rule/60 py-1">
+            <dt class="text-muted">Joueurs ayant changé de ligue</dt>
+            <dd data-numeric>{formatInteger(meta.counts.transitions)}</dd>
+          </div>
+        </dl>
+        <p class="mt-4 text-sm text-muted">
+          Comment ces chiffres sont produits, et ce qu&rsquo;ils ne disent pas :{" "}
+          <a href="/methode" class="underline">la méthode</a>.
+        </p>
+      </section>
+    )
+  }
 </Base>

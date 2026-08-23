@@ -1,0 +1,17 @@
+---
+interface Props {
+  what: string;
+}
+const { what } = Astro.props;
+---
+
+<div class="border border-rule bg-panel p-6">
+  <p class="font-mono text-xs uppercase tracking-wide text-muted">Données absentes</p>
+  <p class="mt-2">
+    {what} n&rsquo;est pas disponible : le pipeline n&rsquo;a pas encore produit de résultats.
+  </p>
+  <p class="mt-3 text-sm text-muted">
+    Aucune valeur d&rsquo;exemple n&rsquo;est affichée à la place. Un chiffre inventé vaudrait
+    moins que pas de chiffre du tout.
+  </p>
+</div>

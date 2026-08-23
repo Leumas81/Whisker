@@ -1,0 +1,168 @@
+---
+import Base from "~/layouts/Base.astro";
+import Estimate from "~/components/Estimate.astro";
+import NoData from "~/components/NoData.astro";
+import Estimand from "~/components/Estimand.astro";
+import { hasAllData, readData } from "~/lib/data";
+import { formatInteger, formatNumber, formatShare } from "~/lib/format";
+
+const ready = hasAllData();
+const leagues = ready ? readData("leagues") : null;
+const meta = ready ? readData("meta") : null;
+const players = ready ? readData("players").players : [];
+
+// Seules les traductions vers une ligue plus forte intéressent : personne ne se demande ce
+// qu'un joueur de LEC vaudrait en LFL.
+const routes = (leagues?.equivalences ?? []).filter((route) => route.to === "LEC");
+
+const candidates = players
+  .filter((player) => player.league !== "LEC" && player.reliability !== "low")
+  .sort((a, b) => b.valueIndex.point - a.valueIndex.point)
+  .slice(0, 15);
+---
+
+<Base
+  title="Traduction inter-ligues"
+  description="Ce que vaudrait un joueur de LFL en LEC, avec l'intervalle, le taux de base historique et le biais de sélection assumé."
+  wide
+>
+  <h1 class="font-display text-2xl uppercase tracking-tight">Traduction inter-ligues</h1>
+  <p class="mt-3 max-w-prose text-muted">
+    Traduire une performance d&rsquo;une ligue vers une autre, et dire aussitôt à quel point
+    cette traduction est fragile.
+  </p>
+
+  <div class="mt-6 max-w-prose border border-flag bg-panel p-4 text-sm" role="note">
+    <p>
+      <strong>Avertissement permanent.</strong> Ces coefficients reposent sur un petit nombre
+      de trajets réellement observés, et sur les seuls joueurs qui les ont effectués. Ceux
+      qu&rsquo;aucune équipe n&rsquo;a jugés assez bons pour monter n&rsquo;apparaissent nulle
+      part — l&rsquo;échantillon est sélectionné, et l&rsquo;estimation en est probablement
+      optimiste.
+    </p>
+    <p class="mt-2">
+      Ce biais est <strong>documenté, pas corrigé</strong>. Le corriger demanderait de modéliser
+      qui aurait pu monter, sur une population que les données ne décrivent pas.
+    </p>
+  </div>
+
+  {
+    !ready ? (
+      <div class="mt-8"><NoData what="Les coefficients d'équivalence" /></div>
+    ) : routes.length === 0 ? (
+      <div class="mt-8 border border-rule bg-panel p-6">
+        <p class="font-mono text-xs uppercase tracking-wide text-muted">Aucun trajet estimable</p>
+        <p class="mt-2">
+          Trop peu de joueurs sont observés des deux côtés d&rsquo;un même changement de ligue
+          pour qu&rsquo;un coefficient soit estimé.
+        </p>
+      </div>
+    ) : (
+      <section class="mt-10">
+        <Estimand label="Coefficients d'équivalence" level={meta!.confidenceLevel} />
+        <div class="mt-4 overflow-x-auto" tabindex="0" role="region" aria-label="Coefficients d’équivalence">
+          <table class="w-full border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-rule text-left font-mono text-xs uppercase tracking-wide text-muted">
+                <th scope="col" class="py-2 pr-4">Trajet</th>
+                <th scope="col" class="py-2 pr-4">Coefficient</th>
+                <th scope="col" class="py-2 pr-4 text-right">Trajets observés</th>
+                <th scope="col" class="py-2">Encore présents un an après</th>
+              </tr>
+            </thead>
+            <tbody>
+              {routes.map((route) => (
+                <tr class="border-b border-rule/60">
+                  <td class="py-3 pr-4 font-mono">{route.from} → {route.to}</td>
+                  <td class="py-3 pr-4"><Estimate estimate={route.coefficient} decimals={2} /></td>
+                  <td class="py-3 pr-4 text-right" data-numeric>{formatInteger(route.nTransitions)}</td>
+                  <td class="py-3" data-numeric>{formatShare(route.retentionOneYear)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-6 max-w-prose space-y-3 text-muted">
+          {routes.map((route) => (
+            <p>
+              <strong>Comment lire.</strong> Sur{" "}
+              <span data-numeric>{formatInteger(route.nTransitions)}</span> joueurs ayant fait le
+              trajet {route.from} → {route.to} depuis 2019,{" "}
+              <span data-numeric>{formatNumber(route.retentionOneYear.point * 100, 0)}&nbsp;%</span>{" "}
+              étaient encore dans la ligue cible un an plus tard. Une performance en {route.from}{" "}
+              se traduit en moyenne par{" "}
+              <span data-numeric>{formatNumber(route.coefficient.point * 100, 0)}&nbsp;%</span>{" "}
+              d&rsquo;elle-même en {route.to} — mais l&rsquo;intervalle dit tout : entre{" "}
+              <span data-numeric>{formatNumber(route.coefficient.lower * 100, 0)}</span> et{" "}
+              <span data-numeric>{formatNumber(route.coefficient.upper * 100, 0)}&nbsp;%</span>.
+            </p>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    ready && candidates.length > 0 && (
+      <section class="mt-14">
+        <Estimand label="Projection · joueurs hors LEC" level={meta!.confidenceLevel} />
+        <p class="mt-3 max-w-prose text-muted">
+          L&rsquo;indice actuel de chaque joueur, et ce qu&rsquo;il deviendrait en LEC une fois
+          le coefficient appliqué. La colonne projetée hérite de toute l&rsquo;incertitude du
+          coefficient : elle est nécessairement plus large que l&rsquo;originale.
+        </p>
+        <div class="mt-4 overflow-x-auto" tabindex="0" role="region" aria-label="Projection en LEC">
+          <table class="w-full border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-rule text-left font-mono text-xs uppercase tracking-wide text-muted">
+                <th scope="col" class="py-2 pr-4">Joueur</th>
+                <th scope="col" class="py-2 pr-4">Ligue</th>
+                <th scope="col" class="py-2 pr-4 text-right">n</th>
+                <th scope="col" class="py-2 pr-4">Indice actuel</th>
+                <th scope="col" class="py-2">Projeté en LEC</th>
+              </tr>
+            </thead>
+            <tbody>
+              {candidates.map((player) => {
+                const route = routes.find((candidate) => candidate.from === player.league);
+                // L'indice projeté combine deux incertitudes : celle de l'indice et celle
+                // du coefficient. L'intervalle est donc l'enveloppe des quatre combinaisons
+                // de bornes — il ne peut qu'être plus large que celui d'origine.
+                const ordered = (() => {
+                  if (!route) return null;
+                  const corners = [player.valueIndex.lower, player.valueIndex.upper].flatMap(
+                    (value) =>
+                      [route.coefficient.lower, route.coefficient.upper].map(
+                        (factor) => 50 + (value - 50) * factor,
+                      ),
+                  );
+                  return {
+                    point: 50 + (player.valueIndex.point - 50) * route.coefficient.point,
+                    lower: Math.min(...corners),
+                    upper: Math.max(...corners),
+                  };
+                })();
+                return (
+                  <tr class="border-b border-rule/60">
+                    <td class="py-2 pr-4">
+                      <a href={`/joueur/${player.slug}`} class="underline underline-offset-2">
+                        {player.name}
+                      </a>
+                    </td>
+                    <td class="py-2 pr-4 font-mono text-xs text-muted">{player.league}</td>
+                    <td class="py-2 pr-4 text-right" data-numeric>{formatInteger(player.games)}</td>
+                    <td class="py-2 pr-4"><Estimate estimate={player.valueIndex} /></td>
+                    <td class="py-2">
+                      {ordered ? <Estimate estimate={ordered} /> : <span class="text-muted">—</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
+  }
+</Base>

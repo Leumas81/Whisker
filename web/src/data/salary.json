@@ -1,0 +1,144 @@
+{
+  "distributions": [
+    {
+      "league": "LEC",
+      "season": 2025,
+      "currency": "EUR",
+      "basis": "observed",
+      "mu": 11.781941,
+      "sigma": 0.921231,
+      "floor": 60000,
+      "pBelowFloor": 0.1213,
+      "truncated": true,
+      "note": "Moyenne et médiane relevées sur la même enquête et la même période. La log-normale simple qu'elles impliquent place 12,1 % des joueurs sous le plancher réglementaire de 60 000 €, ce qui est impossible : la loi est donc tronquée à gauche et ré-identifiée numériquement, conformément au §4.5.",
+      "quintiles": [
+        {
+          "quintile": 1,
+          "band": {
+            "lower": 60000,
+            "upper": 93809
+          }
+        },
+        {
+          "quintile": 2,
+          "band": {
+            "lower": 93809,
+            "upper": 136796
+          }
+        },
+        {
+          "quintile": 3,
+          "band": {
+            "lower": 136796,
+            "upper": 201066
+          }
+        },
+        {
+          "quintile": 4,
+          "band": {
+            "lower": 201066,
+            "upper": 326776
+          }
+        },
+        {
+          "quintile": 5,
+          "band": {
+            "lower": 326776,
+            "upper": 2394776
+          }
+        }
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "league": "LFL",
+      "season": 2025,
+      "reason": "Rien à calibrer. Le plafond réglementaire majore la moyenne sans la situer, et la seule fourchette disponible date de 2022, avant l'entrée en vigueur de ce plafond. Deux bornes prises à trois ans d'écart ne font pas une distribution. Les joueurs de LFL sortent donc du pipeline sans quintile ni fourchette salariale, et le site le dit plutôt que de meubler."
+    }
+  ],
+  "anchors": [
+    {
+      "id": "lec-moyenne-2025",
+      "league": "LEC",
+      "season": 2025,
+      "statistic": "mean",
+      "value": 240000,
+      "valueLower": null,
+      "valueUpper": null,
+      "uncertainty": 20000,
+      "currency": "EUR",
+      "source": "Sheep Esports — enquête « Everything about LEC salaries unveiled », par LEC Wooloo",
+      "method": "Rémunérations des 50 joueurs actifs de LEC sur les splits Summer 2024 et Winter 2025, recoupées auprès de sources confidentielles. L'auteur annonce une précision de ± 20 000 € dans plus de 95 % des cas. Ce n'est pas une divulgation officielle.",
+      "url": "https://www.sheepesports.com/en/all/articles/exclusive-everything-about-lec-salaries-unveiled-or-lec-wooloo/en",
+      "publishedAt": "2025-01-20",
+      "retrievedAt": "2026-08-21"
+    },
+    {
+      "id": "lec-mediane-2025",
+      "league": "LEC",
+      "season": 2025,
+      "statistic": "median",
+      "value": 165000,
+      "valueLower": null,
+      "valueUpper": null,
+      "uncertainty": 10000,
+      "currency": "EUR",
+      "source": "Sheep Esports — enquête « Everything about LEC salaries unveiled », par LEC Wooloo",
+      "method": "Médiane des mêmes 50 joueurs, split Winter 2025. Annoncée à ± 10 000 €.",
+      "url": "https://www.sheepesports.com/en/all/articles/exclusive-everything-about-lec-salaries-unveiled-or-lec-wooloo/en",
+      "publishedAt": "2025-01-20",
+      "retrievedAt": "2026-08-21"
+    },
+    {
+      "id": "lec-plancher-2025",
+      "league": "LEC",
+      "season": 2025,
+      "statistic": "floor",
+      "value": 60000,
+      "valueLower": null,
+      "valueUpper": null,
+      "uncertainty": 0,
+      "currency": "EUR",
+      "source": "Règlement LEC de Riot Games — salaire minimum annuel",
+      "method": "Valeur réglementaire, pas une estimation. Le règlement fixe un minimum de 1 000 € bruts mensuels, majoré de 1 000 € par semaine de match disputée, ce que les reprises de presse résument par un plancher annuel de 60 000 €.",
+      "url": "https://esports-news.co.uk/2023/09/28/lec-salary-cap-financial-regulations/",
+      "publishedAt": "2023-09-28",
+      "retrievedAt": "2026-08-21"
+    },
+    {
+      "id": "lfl-plafond-2025",
+      "league": "LFL",
+      "season": 2025,
+      "statistic": "rosterCap",
+      "value": 250000,
+      "valueLower": null,
+      "valueUpper": null,
+      "uncertainty": 0,
+      "currency": "EUR",
+      "source": "LFL — Règlement Financier Sportif, saison 2025",
+      "method": "Plafond réglementaire portant sur la somme des cinq salaires les plus élevés d'une équipe. Il borne donc la moyenne LFL à 50 000 € par joueur titulaire, sans dire où elle se situe réellement sous ce plafond. Projeté à 300 000 € en 2027.",
+      "url": "https://www.team-aaa.com/fr/actualite/la-lfl-lance-le-reglement-financier-sportif-pour-la-saison-2025_133129",
+      "publishedAt": "2024-11-26",
+      "retrievedAt": "2026-08-21"
+    },
+    {
+      "id": "lfl-fourchette-2022",
+      "league": "LFL",
+      "season": 2022,
+      "statistic": "range",
+      "value": null,
+      "valueLower": 16500,
+      "valueUpper": 132000,
+      "uncertainty": null,
+      "currency": "EUR",
+      "source": "Millenium — d'après L'Apéritif de Solary (Paul Arrivé, L'Équipe ; Lounet, AEGIS)",
+      "method": "Déclarations en plateau : 1 500 €/mois pour un rookie, 3 500 à 4 000 € après deux ou trois ans, 10 000 à 12 000 € pour le haut du panier, sur onze mois payés (décembre étant le mercato). Annualisé ici. Antérieur de trois ans au plafond salarial, donc décrivant un marché qui n'existe plus sous cette forme.",
+      "url": "https://www.millenium.org/news/397442.html",
+      "publishedAt": "2022-11-23",
+      "retrievedAt": "2026-08-21"
+    }
+  ],
+  "disclaimer": "Estimation statistique. Aucun salaire réel n'est connu de ce site."
+}
+

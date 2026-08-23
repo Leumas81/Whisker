@@ -1,0 +1,13 @@
+# En-têtes servis par Cloudflare Pages.
+#
+# Aucun tracker tiers au lancement (§8) : la politique de sécurité du contenu l'inscrit dans
+# le navigateur plutôt que dans une promesse. Tout est auto-hébergé, y compris les polices.
+/*
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+
+# Les données changent au plus une fois par semaine ; les fichiers empreintés sont immuables.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
