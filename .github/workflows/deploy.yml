@@ -1,0 +1,49 @@
+name: deploy
+
+# Mise en ligne sur Cloudflare Pages.
+#
+# Le verrou est « check:release » : il refuse toute publication dont meta.synthetic est vrai,
+# ou dont un des cinq fichiers manque. Construire le site avec un jeu de développement est
+# permis ; le publier ne l'est pas.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Vérifier que les données sont réelles et complètes
+        run: node tools/check-release.mjs
+
+      - name: Construire
+        run: pnpm --filter whisker-web run build
+
+      - name: Déployer sur Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy web/dist --project-name=whisker
