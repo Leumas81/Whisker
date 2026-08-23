@@ -7,17 +7,17 @@
   "properties": {
     "distributions": {
       "type": "array",
-      "items": { "$ref": "salary.schema.json#/$defs/Distribution" },
+      "items": { "$ref": "#/$defs/Distribution" },
       "description": "Uniquement les ligues effectivement calibrées. Une ligue absente d'ici est présente dans « excluded », jamais nulle part."
     },
     "excluded": {
       "type": "array",
-      "items": { "$ref": "salary.schema.json#/$defs/Exclusion" },
+      "items": { "$ref": "#/$defs/Exclusion" },
       "description": "Ligues volontairement non calibrées, avec la raison. Rendre l'absence explicite est le seul moyen de la distinguer d'un oubli."
     },
     "anchors": {
       "type": "array",
-      "items": { "$ref": "salary.schema.json#/$defs/Anchor" },
+      "items": { "$ref": "#/$defs/Anchor" },
       "minItems": 1,
       "description": "Recopiées depuis pipeline/config/salary_anchors.yaml, y compris celles qui n'ont servi à aucune calibration. Une ancre sans source, sans méthode ou sans date fait échouer la validation."
     },
@@ -54,7 +54,7 @@
         "quintiles": {
           "type": "array",
           "minItems": 5, "maxItems": 5,
-          "items": { "$ref": "salary.schema.json#/$defs/QuintileBand" }
+          "items": { "$ref": "#/$defs/QuintileBand" }
         }
       },
       "required": ["league", "season", "currency", "basis", "mu", "sigma", "floor", "pBelowFloor", "truncated", "note", "quintiles"],

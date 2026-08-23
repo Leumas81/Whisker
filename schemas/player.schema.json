@@ -8,7 +8,7 @@
     "players": {
       "type": "array",
       "items": {
-        "$ref": "player.schema.json#/$defs/Player"
+        "$ref": "#/$defs/Player"
       },
       "minItems": 0
     }
@@ -96,7 +96,7 @@
         "history": {
           "type": "array",
           "items": {
-            "$ref": "player.schema.json#/$defs/SeasonRecord"
+            "$ref": "#/$defs/SeasonRecord"
           },
           "description": "Trajectoire par saison, la plus ancienne d'abord."
         }

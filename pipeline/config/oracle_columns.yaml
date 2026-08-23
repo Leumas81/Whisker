@@ -1,0 +1,24 @@
+# Colonnes d'Oracle's Elixir dont le pipeline dépend.
+#
+# Le fichier annuel en compte plus de cent ; on ne lit que celles-ci. Si l'une disparaît d'une
+# version future du jeu de données, le pipeline s'arrête en la nommant plutôt que de produire
+# des colonnes de NA qui traverseraient tout le calcul sans bruit.
+
+identity: [gameid, datacompleteness, date, league, split, playoffs, side, position, playername, teamname, participantid]
+outcome: [result, gamelength, kills, deaths, assists, teamkills]
+performance: [golddiffat15, xpdiffat15, csdiffat15, damageshare, earnedgoldshare, dpm, vspm, wpm]
+
+# Valeur de `position` portant les lignes agrégées d'équipe.
+team_row_marker: "team"
+
+# Postes, dans la graphie d'Oracle's Elixir, et leur correspondance interne.
+positions:
+  top: top
+  jng: jng
+  mid: mid
+  bot: adc
+  sup: sup
+
+# Une ligne dont `datacompleteness` vaut autre chose que « complete » porte des colonnes
+# partielles. Elle est écartée : mieux vaut moins de lignes que des NA silencieux.
+require_complete: true

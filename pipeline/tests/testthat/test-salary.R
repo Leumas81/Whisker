@@ -50,7 +50,8 @@ test_that("les quintiles couvrent la distribution sans se chevaucher", {
     expect_equal(bands[[index]]$upper, bands[[index + 1]]$lower, tolerance = 1e-6)
   }
   expect_gte(bands[[1]]$lower, 60000 - 1e-6)
-  expect_true(is.infinite(bands[[5]]$upper))
+  expect_true(is.finite(bands[[5]]$upper))
+  expect_gt(bands[[5]]$upper, bands[[5]]$lower)
 })
 
 test_that("la LEC est calibrée à partir de ses ancres sourcées", {

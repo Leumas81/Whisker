@@ -8,7 +8,7 @@
     "variants": {
       "type": "array",
       "items": {
-        "$ref": "aging.schema.json#/$defs/Variant"
+        "$ref": "#/$defs/Variant"
       },
       "minItems": 1
     }
@@ -48,7 +48,7 @@
         "curves": {
           "type": "array",
           "items": {
-            "$ref": "aging.schema.json#/$defs/Curve"
+            "$ref": "#/$defs/Curve"
           }
         }
       },
@@ -82,7 +82,7 @@
         "points": {
           "type": "array",
           "items": {
-            "$ref": "aging.schema.json#/$defs/CurvePoint"
+            "$ref": "#/$defs/CurvePoint"
           },
           "minItems": 2,
           "description": "Grille d'âges régulière, croissante."

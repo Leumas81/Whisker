@@ -372,6 +372,10 @@ export interface MetaFile {
    * @minItems 1
    */
   sources: [DataSource, ...DataSource[]];
+  /**
+   * Vrai si les données sont un jeu de développement synthétique et non le produit du pipeline. Le site affiche alors un bandeau permanent, et « pnpm verify:release » échoue : des données fictives peuvent servir à construire le site, jamais à le publier.
+   */
+  synthetic: boolean;
 }
 export interface DataSource {
   name: string;

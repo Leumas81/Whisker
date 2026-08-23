@@ -8,14 +8,14 @@
     "strengths": {
       "type": "array",
       "items": {
-        "$ref": "leagues.schema.json#/$defs/LeagueStrength"
+        "$ref": "#/$defs/LeagueStrength"
       },
       "description": "Une entrée par ligue, saison et source d'identification. Les deux sources sont rapportées séparément et jamais moyennées (§4.1)."
     },
     "equivalences": {
       "type": "array",
       "items": {
-        "$ref": "leagues.schema.json#/$defs/Equivalence"
+        "$ref": "#/$defs/Equivalence"
       }
     }
   },
@@ -45,7 +45,7 @@
           "$ref": "common.schema.json#/$defs/Season"
         },
         "source": {
-          "$ref": "leagues.schema.json#/$defs/IdentificationSource"
+          "$ref": "#/$defs/IdentificationSource"
         },
         "strength": {
           "$ref": "common.schema.json#/$defs/Estimate"

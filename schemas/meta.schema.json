@@ -72,8 +72,12 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "meta.schema.json#/$defs/Source"
+        "$ref": "#/$defs/Source"
       }
+    },
+    "synthetic": {
+      "type": "boolean",
+      "description": "Vrai si les données sont un jeu de développement synthétique et non le produit du pipeline. Le site affiche alors un bandeau permanent, et « pnpm verify:release » échoue : des données fictives peuvent servir à construire le site, jamais à le publier."
     }
   },
   "required": [
@@ -84,7 +88,8 @@
     "bootstrapReplicates",
     "counts",
     "unmatchedRate",
-    "sources"
+    "sources",
+    "synthetic"
   ],
   "additionalProperties": false,
   "$defs": {

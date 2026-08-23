@@ -39,3 +39,20 @@ reliability:
 
 # Le pipeline s'arrête au-delà de ce taux d'entités non résolues (§3.2).
 max_unmatched_rate: 0.02
+
+# Sources de téléchargement d'Oracle's Elixir.
+#
+# Les fichiers annuels sont distribués via Google Drive, un identifiant par année. Le bucket
+# S3 historique n'existe plus. Ces identifiants sont de la configuration : s'ils changent,
+# c'est ici qu'on les corrige, et le pipeline échoue bruyamment plutôt que d'exporter un
+# jeu de données amputé d'une saison.
+oracle_downloads:
+  base_url: "https://drive.google.com/uc?export=download&id="
+  files:
+    2019: "11eKtScnZcpfZcD3w3UrD7nnpfLHvj9_t"
+    2020: "1dlSIczXShnv1vIfGNvBjgk-thMKA5j7d"
+    2021: "1fzwTTz77hcnYjOnO9ONeoPrkWCoOSecA"
+    2022: "1EHmptHyzY8owv0BAcNKtkQpMwfkURwRy"
+    2023: "1XXk2LO0CsNADBB1LRGOV5rUpyZdEZ8s2"
+    2024: "1IjIEhLc9n8eLKeY-yh_YigKVWbhgGBsN"
+    2025: "1v6LRphp2kYciU4SXp0PCjEMuev1bDejc"

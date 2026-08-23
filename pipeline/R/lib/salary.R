@@ -109,8 +109,8 @@ whisker_calibrate_league <- function(league, season, config, max_below_floor = 0
 }
 
 #' Bornes de quintile d'une distribution calibrée.
-whisker_quintile_bands <- function(params) {
-  probabilities <- seq(0, 1, by = 0.2)
+whisker_quintile_bands <- function(params, upper_quantile = 0.999) {
+  probabilities <- c(seq(0, 0.8, by = 0.2), upper_quantile)
   cuts <- vapply(probabilities, function(p) whisker_quantile(params, p), numeric(1))
   lapply(1:5, function(q) list(quintile = q, lower = cuts[q], upper = cuts[q + 1]))
 }
