@@ -2,9 +2,13 @@ name: deploy
 
 # Mise en ligne sur Cloudflare Pages.
 #
-# Le verrou est « check:release » : il refuse toute publication dont meta.synthetic est vrai,
+# Le verrou est `check:release` : il refuse toute publication dont `meta.synthetic` est vrai,
 # ou dont un des cinq fichiers manque. Construire le site avec un jeu de développement est
 # permis ; le publier ne l'est pas.
+#
+# Ce refus n'est pas une panne, c'est le fonctionnement attendu tant que le pipeline n'a pas
+# tourné sur les sources réelles. Le job s'arrête donc proprement en le disant, plutôt que
+# de peindre la CI en rouge à chaque poussée.
 
 on:
   push:
@@ -20,7 +24,30 @@ permissions:
   deployments: write
 
 jobs:
+  verrou:
+    name: Les données sont-elles publiables ?
+    runs-on: ubuntu-latest
+    outputs:
+      publiable: ${{ steps.verdict.outputs.publiable }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: verdict
+        run: |
+          if node tools/check-release.mjs; then
+            echo "publiable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publiable=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Publication suspendue"
+              echo ""
+              echo "Les données commitées ne sont pas publiables — voir le détail ci-dessus."
+              echo "Lancez le workflow \`pipeline\` pour les recalculer sur les sources réelles."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   publier:
+    needs: verrou
+    if: needs.verrou.outputs.publiable == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -34,9 +61,6 @@ jobs:
 
       - name: Installer les dépendances
         run: pnpm install --frozen-lockfile
-
-      - name: Vérifier que les données sont réelles et complètes
-        run: node tools/check-release.mjs
 
       - name: Construire
         run: pnpm --filter whisker-web run build

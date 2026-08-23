@@ -72,6 +72,31 @@ pipeline R. Pour rejouer une seule étape : `node tools/verify.mjs types`.
 | `pnpm lighthouse` | Audite le site construit, échoue sous 95 en performance ou accessibilité |
 | `pnpm test:cargo` | Vérifie l’ingestion Leaguepedia contre la source réelle |
 
+## Mettre en route la CI
+
+Le pipeline est fait pour tourner en intégration continue, pas sur une machine personnelle :
+l'API Cargo de Leaguepedia limite fortement le débit des adresses mutualisées, ce qui rend un
+tirage de quarante mille lignes impraticable depuis un accès domestique.
+
+Une fois un dépôt distant créé, sans rien y pousser :
+
+```bash
+git remote add origin <URL-du-depot>
+git push -u origin main
+```
+
+Ce que la première poussée déclenche, sans autre intervention :
+
+| Workflow | Ce qu'il fait |
+|---|---|
+| `verify` | Rejoue `pnpm verify` : contrats, types, lint, typage, tests, build, bout-en-bout, tests R |
+| `pipeline` | Ne se lance sur poussée **que si** `meta.synthetic` est vrai — il remplace alors les données de développement par les vraies. La condition s'éteint d'elle-même au premier passage réussi |
+| `deploy` | S'arrête proprement tant que les données ne sont pas publiables, et ne peint pas la CI en rouge pour autant |
+
+Le déploiement lui-même attend deux secrets de dépôt, `CLOUDFLARE_API_TOKEN` et
+`CLOUDFLARE_ACCOUNT_ID`. Sans eux, tout le reste fonctionne : seule la mise en ligne est
+suspendue.
+
 ## Où lire quoi
 
 | | |

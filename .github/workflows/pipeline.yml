@@ -1,10 +1,13 @@
 name: pipeline
 
-# Recalcul hebdomadaire des estimations.
+# Recalcul des estimations à partir des sources réelles.
 #
-# Le pipeline tourne ici et nulle part ailleurs : le propriétaire n'a rien à exécuter.
-# Il produit les cinq JSON, les valide contre les schémas, et ne les commite que si la
-# validation passe — un jeu de données invalide n'atteint jamais le site.
+# Le pipeline tourne ici et nulle part ailleurs : le propriétaire n'a rien à exécuter. Deux
+# raisons de le lancer depuis la CI plutôt que d'une machine personnelle :
+#
+#   — l'API Cargo de Leaguepedia limite fortement le débit des adresses mutualisées, ce qui
+#     rend un tirage de quarante mille lignes impraticable depuis un accès domestique ;
+#   — le résultat doit être reproductible et attribuable à un commit, pas à un poste.
 
 on:
   schedule:
@@ -16,6 +19,12 @@ on:
         description: "Étapes à rejouer (vide = toutes)"
         required: false
         default: ""
+      replicates:
+        description: "Réplications de bootstrap (2000 en régime normal)"
+        required: false
+        default: "2000"
+  push:
+    branches: [main]
 
 permissions:
   contents: write
@@ -25,9 +34,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  recalculer:
+  # Sur simple poussée, le pipeline ne tourne que si les données commitées sont encore
+  # synthétiques. La condition s'éteint d'elle-même dès le premier passage réussi : le premier
+  # push amorce le remplacement, les suivants ne relancent rien.
+  decider:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    outputs:
+      lancer: ${{ steps.verdict.outputs.lancer }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: verdict
+        run: |
+          if [ "${{ github.event_name }}" != "push" ]; then
+            echo "lancer=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ ! -f web/src/data/meta.json ]; then
+            echo "Aucune donnée commitée : le pipeline doit tourner."
+            echo "lancer=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          synthetique=$(node -e "console.log(require('./web/src/data/meta.json').synthetic)")
+          echo "meta.synthetic = $synthetique"
+          echo "lancer=$synthetique" >> "$GITHUB_OUTPUT"
+
+  recalculer:
+    needs: decider
+    if: needs.decider.outputs.lancer == 'true'
+    runs-on: ubuntu-latest
+    # Le tirage des sources, quatre modèles mixtes et deux mille réplications de bootstrap
+    # sur quarante mille lignes : le plafond d'une heure et demie était optimiste.
+    timeout-minutes: 330
+
+    env:
+      WHISKER_REPLICATES: ${{ github.event.inputs.replicates || '2000' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +91,10 @@ jobs:
       - name: Installer les dépendances Node
         run: pnpm install --frozen-lockfile
 
-      - name: Cache des téléchargements sources
+      # Les réponses des sources sont mises en cache sur disque. Le conserver entre deux
+      # exécutions évite de retélécharger l'historique complet chaque semaine, et rend une
+      # reprise après échec presque gratuite.
+      - name: Cache des réponses de source
         uses: actions/cache@v4
         with:
           path: pipeline/raw
@@ -71,6 +114,20 @@ jobs:
       - name: Construire le site avec les nouvelles données
         run: pnpm --filter whisker-web run build
 
+      - name: Résumer ce qui a été produit
+        run: |
+          node -e "
+            const meta = require('./web/src/data/meta.json');
+            const { players } = require('./web/src/data/players.json');
+            console.log('source          :', meta.performanceSource);
+            console.log('synthétique     :', meta.synthetic);
+            console.log('composants      :', meta.metricComponents.join(', '));
+            console.log('joueurs         :', players.length);
+            console.log('lignes          :', meta.counts.playerGames);
+            console.log('dernière donnée :', meta.lastDataDate);
+            console.log('premiers noms   :', players.slice(0, 8).map(p => p.name).join(', '));
+          "
+
       - name: Conserver les diagnostics des modèles
         if: always()
         uses: actions/upload-artifact@v4
@@ -87,6 +144,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Aucun changement de données : rien à commiter."
           else
-            git commit -m "data(pipeline): recalcul hebdomadaire des estimations"
+            git commit -m "data(pipeline): recalcul des estimations sur les sources réelles"
             git push
           fi

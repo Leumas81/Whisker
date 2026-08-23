@@ -438,3 +438,40 @@ d'un CDN — donc il est reproductible et attribuable au code.
 **Résultat au 23 août 2026.** Accueil, joueurs et méthode à 100 partout. Vieillissement à 96
 en performance, le reste à 100 : le coût est le fragment Observable Plot, 259 Ko, chargé sur
 cette seule page.
+
+---
+
+## D-033 — Le pipeline s'amorce tout seul à la première poussée, puis se tait
+
+**Décidé.** `pipeline.yml` se déclenche sur poussée vers `main`, mais un job préalable lit
+`web/src/data/meta.json` et n'enchaîne que si `synthetic` vaut vrai.
+
+**Pourquoi.** Le premier push doit remplacer les données de développement par les vraies sans
+qu'on ait à y penser. Mais relancer quatre modèles mixtes et deux mille réplications de
+bootstrap à chaque commit serait absurde. La condition s'éteint d'elle-même au premier passage
+réussi : elle amorce, puis elle se tait.
+
+---
+
+## D-034 — Un déploiement suspendu n'est pas un déploiement en échec
+
+**Décidé.** `deploy.yml` évalue `check:release` dans un job séparé et saute la publication
+plutôt que d'échouer quand les données ne sont pas publiables. Le motif part dans le résumé
+du workflow.
+
+**Pourquoi.** Refuser de publier des données synthétiques est le fonctionnement attendu, pas
+une panne. Peindre la CI en rouge à chaque poussée jusqu'au premier passage du pipeline
+apprendrait au lecteur à ignorer le rouge — c'est le meilleur moyen de rater une vraie
+régression plus tard.
+
+---
+
+## D-035 — Le budget de temps de la CI correspond au travail réel
+
+**Décidé.** Le plafond de `pipeline.yml` passe de 90 à 330 minutes, et le nombre de
+réplications de bootstrap devient réglable par `WHISKER_REPLICATES`.
+
+**Pourquoi.** Le tirage des sources, quatre modèles mixtes et deux mille réplications sur
+quarante mille lignes ne tiennent pas dans une heure et demie. Un plafond trop bas aurait
+produit un échec par expiration qu'on aurait pris pour un défaut du code. Le cache des
+réponses de source est conservé entre exécutions : une reprise après échec ne retélécharge rien.

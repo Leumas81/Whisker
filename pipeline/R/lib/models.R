@@ -5,7 +5,11 @@
 # d'assembler.
 
 WHISKER_CONFIDENCE <- 0.8
-WHISKER_REPLICATES <- 2000L
+
+# Deux mille réplications, comme le veut le §4.6. Le nombre reste réglable par variable
+# d'environnement : la CI l'abaisse pour une exécution de contrôle, et le générateur
+# synthétique n'a pas besoin de cette précision pour vérifier la mécanique.
+WHISKER_REPLICATES <- as.integer(Sys.getenv("WHISKER_REPLICATES", "2000"))
 
 #' Bornes de quantile pour un niveau de confiance donné.
 whisker_ci_probs <- function(level = WHISKER_CONFIDENCE) {
