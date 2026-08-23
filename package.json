@@ -19,7 +19,9 @@
     "test:e2e": "pnpm --filter whisker-web run test:e2e",
     "build": "pnpm --filter whisker-web run build",
     "dev": "pnpm --filter whisker-web run dev",
-    "verify": "node tools/verify.mjs"
+    "verify": "node tools/verify.mjs",
+    "check:release": "node tools/check-release.mjs",
+    "verify:release": "node tools/verify.mjs && node tools/check-release.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
