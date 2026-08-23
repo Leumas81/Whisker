@@ -27,7 +27,7 @@ whisker_download <- function(url, destination, max_age_days = 6, paths = whisker
     }
   }
 
-  whisker_log("download", "%s", url)
+  whisker_log("download", "%s", substr(url, 1, 110))
   request <- httr2::request(url)
   request <- httr2::req_user_agent(request, WHISKER_USER_AGENT)
   request <- httr2::req_retry(request, max_tries = 3, backoff = function(attempt) 2^attempt)
@@ -47,7 +47,8 @@ whisker_download <- function(url, destination, max_age_days = 6, paths = whisker
 #' `req_retry` ne la voit donc pas. Sur une adresse partagée, elle est intermittente —
 #' la même requête passe quelques secondes plus tard. On patiente donc, en doublant
 #' l'attente, plutôt que d'abandonner une exécution de pipeline pour une seconde de trop.
-whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L) {
+whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L,
+                                max_wait = 60) {
   wait <- pause
   for (attempt in seq_len(max_attempts)) {
     if (!file.exists(cache)) {
@@ -67,8 +68,8 @@ whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L) {
 
     # La réponse en cache porte une erreur : elle ne doit pas être resservie.
     unlink(cache)
-    wait <- min(wait * 2, 60)
-    whisker_log("02_contracts", "limitation de débit, nouvelle tentative dans %.0f s (%d/%d)",
+    wait <- min(wait * 2, max_wait)
+    whisker_log("cargo", "limitation de débit, nouvelle tentative dans %.0f s (%d/%d)",
                 wait, attempt, max_attempts)
   }
 
@@ -94,7 +95,8 @@ whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L) {
 #' demandé ; la déduplication finale reste en filet de sécurité.
 whisker_cargo_query <- function(tables, fields, where = NULL, join_on = NULL,
                                 order_by = NULL, limit = 500L, pause = 1.0,
-                                max_pages = 200L, paths = whisker_paths()) {
+                                max_pages = 200L, max_attempts = 6L, max_wait = 60,
+                                paths = whisker_paths()) {
   base <- "https://lol.fandom.com/api.php"
   collected <- list()
   offset <- 0L
@@ -112,7 +114,7 @@ whisker_cargo_query <- function(tables, fields, where = NULL, join_on = NULL,
     url <- httr2::url_modify_query(base, !!!query)
     cache <- whisker_cache_path(url, "json", paths)
 
-    payload <- whisker_cargo_fetch(url, cache, pause, paths)
+    payload <- whisker_cargo_fetch(url, cache, pause, paths, max_attempts, max_wait)
 
     rows <- payload$cargoquery
     if (length(rows) == 0) break

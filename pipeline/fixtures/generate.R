@@ -185,6 +185,17 @@ games$contract_end <- as.Date(ifelse(
   NA
 ), origin = "1970-01-01")
 
+games$vspm <- games$vspm
+# Le jeu de développement doit imiter la source active, pas une source plus riche : sinon
+# il répéterait une chaîne que le vrai pipeline ne parcourt pas. Si la configuration désigne
+# Leaguepedia, les différentiels de lane disparaissent ici aussi.
+if (identical(whisker_config("leagues", paths)$performance_source, "leaguepedia")) {
+  games$golddiffat15 <- NA_real_
+  games$xpdiffat15 <- NA_real_
+  games$csdiffat15 <- NA_real_
+  whisker_log("fixtures", "différentiels de lane retirés : la source active ne les porte pas")
+}
+
 arrow::write_parquet(games, file.path(paths$interim, "player_games.parquet"))
 whisker_log("fixtures", "%d lignes joueur-game, %d joueurs, %d saisons",
             nrow(games), length(unique(games$playername)), length(unique(games$season)))

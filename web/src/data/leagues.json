@@ -5,9 +5,9 @@
       "season": 2021,
       "source": "transfers",
       "strength": {
-        "point": 0.2852,
-        "lower": -0.3209,
-        "upper": 0.3957
+        "point": 0.1654,
+        "lower": -0.2891,
+        "upper": 0.301
       },
       "nPlayers": 4,
       "nGames": 110
@@ -17,9 +17,9 @@
       "season": 2022,
       "source": "transfers",
       "strength": {
-        "point": 0.3213,
-        "lower": -0.3909,
-        "upper": 0.3213
+        "point": 0.2642,
+        "lower": -0.3216,
+        "upper": 0.2642
       },
       "nPlayers": 11,
       "nGames": 201
@@ -29,9 +29,9 @@
       "season": 2023,
       "source": "transfers",
       "strength": {
-        "point": 0.2376,
-        "lower": -0.3394,
-        "upper": 0.3844
+        "point": 0.1864,
+        "lower": -0.3139,
+        "upper": 0.3094
       },
       "nPlayers": 13,
       "nGames": 240
@@ -41,9 +41,9 @@
       "season": 2024,
       "source": "transfers",
       "strength": {
-        "point": 0.0906,
-        "lower": -0.38,
-        "upper": 0.2293
+        "point": 0.0333,
+        "lower": -0.3142,
+        "upper": 0.1998
       },
       "nPlayers": 9,
       "nGames": 164
@@ -53,9 +53,9 @@
       "season": 2025,
       "source": "transfers",
       "strength": {
-        "point": 0.1906,
-        "lower": -0.3834,
-        "upper": 0.3474
+        "point": 0.2168,
+        "lower": -0.3339,
+        "upper": 0.285
       },
       "nPlayers": 12,
       "nGames": 214
@@ -65,9 +65,9 @@
       "season": 2026,
       "source": "transfers",
       "strength": {
-        "point": 0.2521,
-        "lower": -0.3798,
-        "upper": 0.2521
+        "point": 0.2231,
+        "lower": -0.3103,
+        "upper": 0.2231
       },
       "nPlayers": 17,
       "nGames": 331
@@ -77,9 +77,9 @@
       "season": 2019,
       "source": "transfers",
       "strength": {
-        "point": -0.0963,
-        "lower": -0.3331,
-        "upper": 0.3551
+        "point": -0.0757,
+        "lower": -0.2958,
+        "upper": 0.2724
       },
       "nPlayers": 3,
       "nGames": 255
@@ -89,9 +89,9 @@
       "season": 2020,
       "source": "transfers",
       "strength": {
-        "point": -0.1243,
-        "lower": -0.2601,
-        "upper": 0.402
+        "point": -0.0906,
+        "lower": -0.2189,
+        "upper": 0.3474
       },
       "nPlayers": 10,
       "nGames": 277
@@ -101,9 +101,9 @@
       "season": 2021,
       "source": "transfers",
       "strength": {
-        "point": -0.2536,
-        "lower": -0.3785,
-        "upper": 0.2853
+        "point": -0.244,
+        "lower": -0.279,
+        "upper": 0.2438
       },
       "nPlayers": 12,
       "nGames": 228
@@ -113,9 +113,9 @@
       "season": 2022,
       "source": "transfers",
       "strength": {
-        "point": -0.1974,
-        "lower": -0.3144,
-        "upper": 0.293
+        "point": -0.2342,
+        "lower": -0.2342,
+        "upper": 0.2514
       },
       "nPlayers": 6,
       "nGames": 95
@@ -125,9 +125,9 @@
       "season": 2023,
       "source": "transfers",
       "strength": {
-        "point": -0.2427,
-        "lower": -0.2427,
-        "upper": 0.3597
+        "point": -0.2149,
+        "lower": -0.225,
+        "upper": 0.2764
       },
       "nPlayers": 9,
       "nGames": 124
@@ -137,9 +137,9 @@
       "season": 2024,
       "source": "transfers",
       "strength": {
-        "point": -0.2238,
-        "lower": -0.2238,
-        "upper": 0.426
+        "point": -0.1762,
+        "lower": -0.1762,
+        "upper": 0.3938
       },
       "nPlayers": 14,
       "nGames": 207
@@ -149,9 +149,9 @@
       "season": 2025,
       "source": "transfers",
       "strength": {
-        "point": -0.1513,
-        "lower": -0.2864,
-        "upper": 0.3069
+        "point": -0.1613,
+        "lower": -0.2222,
+        "upper": 0.2378
       },
       "nPlayers": 7,
       "nGames": 87
@@ -162,9 +162,9 @@
       "from": "LFL",
       "to": "LEC",
       "coefficient": {
-        "point": 0.740362580281614,
-        "lower": 0.632226549967811,
-        "upper": 0.825050411229113
+        "point": 0.649330787998554,
+        "lower": 0.51659249338676,
+        "upper": 0.765489175566127
       },
       "nTransitions": 36,
       "selectionCorrection": "none",

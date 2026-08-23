@@ -1,11 +1,43 @@
-# Téléchargement des CSV annuels d'Oracle's Elixir, avec cache local.
+# Récupération des performances joueur-game.
 #
-# Entrées  : config/leagues.yaml (identifiants Google Drive, première saison)
-# Sorties  : raw/oracle_<annee>.csv
+# Entrées  : config/leagues.yaml
+# Sorties  : raw/oracle_<annee>.csv, ou interim/scoreboards.parquet
 # Phase    : 1 du brief.
+#
+# Deux sources possibles, choisies par `performance_source` dans la configuration :
+#
+#   oracle       — les CSV annuels d'Oracle's Elixir, source de référence du brief. Sa
+#                  distribution est passée à Google Drive, dont le quota public s'épuise :
+#                  le jeu devient alors inatteignable pendant des jours.
+#   leaguepedia  — les tableaux de score, par la même API Cargo que les contrats. Vrais
+#                  pseudos, vraies équipes, mais pas de différentiels de lane à 15 minutes.
+#
+# Le choix se documente, il ne se devine pas : `meta.json` enregistre la source retenue et les
+# composants de `metric_std` qui ont réellement pu être calculés.
 
 whisker_step_01_download <- function(paths = whisker_paths()) {
   config <- whisker_config("leagues", paths)
+  source_name <- config$performance_source %||% "oracle"
+
+  switch(
+    source_name,
+    oracle = whisker_download_oracle(config, paths),
+    leaguepedia = whisker_download_leaguepedia(config, paths),
+    stop(
+      sprintf(
+        "performance_source vaut « %s ». Valeurs acceptées : oracle, leaguepedia.",
+        source_name
+      ),
+      call. = FALSE
+    )
+  )
+}
+
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
+# ── Oracle's Elixir ──────────────────────────────────────────────────────────────────────
+
+whisker_download_oracle <- function(config, paths) {
   downloads <- config$oracle_downloads
   first_season <- config$period$first_season
   seasons <- sort(as.integer(names(downloads$files)))
@@ -32,7 +64,7 @@ whisker_step_01_download <- function(paths = whisker_paths()) {
           paste0(
             "Oracle's Elixir %d : Google Drive a renvoyé une page HTML au lieu du CSV.\n",
             "  Cause probable : quota de téléchargement public dépassé, ou identifiant périmé.\n",
-            "  Vérifiez oracle_downloads dans pipeline/config/leagues.yaml."
+            "  Bascule possible : performance_source: leaguepedia dans config/leagues.yaml."
           ),
           season
         ),
@@ -50,4 +82,30 @@ whisker_step_01_download <- function(paths = whisker_paths()) {
   }
 
   invisible(written)
+}
+
+# ── Leaguepedia ──────────────────────────────────────────────────────────────────────────
+
+whisker_download_leaguepedia <- function(config, paths) {
+  first_season <- config$period$first_season
+  seasons <- seq(first_season, as.integer(format(Sys.Date(), "%Y")))
+  pages <- vapply(config$leagues, function(league) league$leaguepedia_page, character(1))
+  ids <- vapply(config$leagues, function(league) league$id, character(1))
+
+  collected <- list()
+  for (index in seq_along(pages)) {
+    whisker_log("01_download", "%s : saisons %d à %d", ids[index], min(seasons), max(seasons))
+    rows <- whisker_fetch_scoreboards(pages[index], seasons, paths)
+    rows$league <- ids[index]
+    collected[[length(collected) + 1]] <- rows
+    whisker_log("01_download", "%s : %d lignes au total", ids[index], nrow(rows))
+  }
+
+  games <- whisker_normalise_scoreboards(do.call(rbind, collected))
+  destination <- file.path(paths$interim, "scoreboards.parquet")
+  arrow::write_parquet(games, destination)
+
+  whisker_log("01_download", "%d lignes joueur-game écrites (%d joueurs distincts)",
+              nrow(games), length(unique(games$playername)))
+  invisible(destination)
 }

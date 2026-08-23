@@ -270,6 +270,8 @@ describe("traçabilité", () => {
       confidenceLevel: 0.8,
       bootstrapReplicates: 2000,
       synthetic: false,
+      performanceSource: "leaguepedia",
+      metricComponents: ["dmgshare", "rendement", "kp", "survie", "vision"],
       counts: { players: 400, playerGames: 15000, teams: 40, leagues: 2, transitions: 43 },
       unmatchedRate: 0.004,
       sources: [
@@ -294,6 +296,8 @@ describe("traçabilité", () => {
       confidenceLevel: 0.8,
       bootstrapReplicates: 2000,
       synthetic: false,
+      performanceSource: "leaguepedia",
+      metricComponents: ["dmgshare", "rendement", "kp", "survie", "vision"],
       counts: { players: 400, playerGames: 15000, teams: 40, leagues: 2, transitions: 43 },
       unmatchedRate: 0.05,
       sources: [

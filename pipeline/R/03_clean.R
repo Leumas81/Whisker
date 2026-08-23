@@ -1,6 +1,7 @@
 # Nettoyage, réconciliation des identités, jointure performances/contrats.
 #
-# Entrées  : raw/oracle_<annee>.csv, interim/players_meta.parquet, interim/contracts.parquet
+# Entrées  : raw/oracle_<annee>.csv ou interim/scoreboards.parquet, plus
+#            interim/players_meta.parquet et interim/contracts.parquet
 # Sorties  : interim/player_games.parquet, interim/unmatched.csv
 # Phase    : 1 du brief.
 #
@@ -12,6 +13,47 @@ whisker_step_03_clean <- function(paths = whisker_paths()) {
   columns_config <- whisker_config("oracle_columns", paths)
   aliases_config <- whisker_config("name_aliases", paths)
 
+  players <- whisker_read_performance(leagues_config, columns_config, paths)
+  whisker_join_and_export(players, leagues_config, aliases_config, paths)
+}
+
+# ── Lecture, selon la source active ──────────────────────────────────────────────────────
+
+#' Lit la source de performance disponible et rend des lignes joueur normalisées.
+#'
+#' Les deux sources n'ont pas la même forme : Oracle's Elixir mêle lignes joueur et lignes
+#' d'équipe dans un CSV, Leaguepedia rend déjà une ligne par joueur. Ce qui sort d'ici est
+#' identique dans les deux cas ; tout ce qui suit ignore d'où viennent les données.
+whisker_read_performance <- function(leagues_config, columns_config, paths) {
+  scoreboards <- file.path(paths$interim, "scoreboards.parquet")
+  files <- list.files(paths$raw, pattern = "^oracle_\\d{4}\\.csv$", full.names = TRUE)
+
+  if (file.exists(scoreboards)) {
+    rows <- as.data.frame(arrow::read_parquet(scoreboards))
+    whisker_log("03_clean", "%d lignes depuis les tableaux de score Leaguepedia", nrow(rows))
+    rows$team_kills <- rows$teamkills
+    rows <- whisker_drop_duplicate_rows(rows)
+    rows$league_id <- rows$league
+    rows$is_international <- FALSE
+    rows$season <- whisker_season_of(rows$date)
+    return(rows[!is.na(rows$role), , drop = FALSE])
+  }
+
+  if (length(files) == 0) {
+    stop(
+      paste0(
+        "Aucune source de performance trouvée.\n",
+        "  Ni CSV Oracle's Elixir dans raw/, ni tableaux de score dans interim/.\n",
+        "  Lancez d'abord l'étape 01_download."
+      ),
+      call. = FALSE
+    )
+  }
+
+  whisker_read_oracle(files, leagues_config, columns_config)
+}
+
+whisker_read_oracle <- function(files, leagues_config, columns_config) {
   wanted_columns <- unique(unlist(columns_config[c("identity", "outcome", "performance")]))
   league_codes <- unlist(lapply(leagues_config$leagues, function(l) l$oracle_codes))
   league_ids <- vapply(leagues_config$leagues, function(l) l$id, character(1))
@@ -21,18 +63,11 @@ whisker_step_03_clean <- function(paths = whisker_paths()) {
   )
   event_codes <- unlist(lapply(leagues_config$international_events, function(e) e$oracle_codes))
 
-  # ── Lecture des CSV annuels ───────────────────────────────────────────────────────────
-  files <- list.files(paths$raw, pattern = "^oracle_\\d{4}\\.csv$", full.names = TRUE)
-  if (length(files) == 0) {
-    stop("Aucun CSV Oracle's Elixir dans raw/. Lancez d'abord l'étape 01_download.", call. = FALSE)
-  }
-
   seasons <- lapply(files, function(file) {
     rows <- readr::read_csv(file, show_col_types = FALSE, progress = FALSE,
                             guess_max = 50000, na = c("", "NA"))
     whisker_require_columns(rows, wanted_columns, basename(file))
-    rows <- rows[rows$league %in% c(league_codes, event_codes), wanted_columns, drop = FALSE]
-    rows
+    rows[rows$league %in% c(league_codes, event_codes), wanted_columns, drop = FALSE]
   })
   raw_rows <- do.call(rbind, seasons)
   whisker_log("03_clean", "%d lignes retenues sur %d fichiers", nrow(raw_rows), length(files))
@@ -43,7 +78,6 @@ whisker_step_03_clean <- function(paths = whisker_paths()) {
     whisker_log("03_clean", "%d ligne(s) incomplète(s) écartée(s)", before - nrow(raw_rows))
   }
 
-  # ── Séparation des lignes d'équipe et des lignes joueur ───────────────────────────────
   marker <- columns_config$team_row_marker
   teams <- raw_rows[raw_rows$position == marker, , drop = FALSE]
   players <- raw_rows[raw_rows$position != marker, , drop = FALSE]
@@ -51,7 +85,6 @@ whisker_step_03_clean <- function(paths = whisker_paths()) {
   players <- whisker_attach_team_kills(players, teams)
   players <- whisker_drop_duplicate_rows(players)
 
-  # ── Vocabulaire interne ───────────────────────────────────────────────────────────────
   players$role <- whisker_map_positions(players$position, columns_config$positions)
   players$season <- whisker_season_of(players$date)
   players$is_international <- players$league %in% event_codes
@@ -74,16 +107,20 @@ whisker_step_03_clean <- function(paths = whisker_paths()) {
     )
   }
 
-  players$playername <- whisker_canonical(players$playername, aliases_config$players)
-  players$teamname <- whisker_canonical(players$teamname, aliases_config$teams)
-
   before <- nrow(players)
   players <- players[!is.na(players$role), , drop = FALSE]
   if (before > nrow(players)) {
     whisker_log("03_clean", "%d ligne(s) au poste inconnu écartée(s)", before - nrow(players))
   }
+  players
+}
 
-  # ── Jointure avec Leaguepedia ─────────────────────────────────────────────────────────
+# ── Réconciliation et export ─────────────────────────────────────────────────────────────
+
+whisker_join_and_export <- function(players, leagues_config, aliases_config, paths) {
+  players$playername <- whisker_canonical(players$playername, aliases_config$players)
+  players$teamname <- whisker_canonical(players$teamname, aliases_config$teams)
+
   meta_file <- file.path(paths$interim, "players_meta.parquet")
   if (!file.exists(meta_file)) {
     stop("interim/players_meta.parquet absent. Lancez d'abord l'étape 02_contracts.", call. = FALSE)
@@ -138,7 +175,8 @@ whisker_step_03_clean <- function(paths = whisker_paths()) {
 
   destination <- file.path(paths$interim, "player_games.parquet")
   arrow::write_parquet(players, destination)
-  whisker_log("03_clean", "%d lignes joueur-game écrites", nrow(players))
+  whisker_log("03_clean", "%d lignes joueur-game écrites, %d joueurs",
+              nrow(players), length(unique(players$playername)))
 
   invisible(destination)
 }

@@ -78,6 +78,23 @@
     "synthetic": {
       "type": "boolean",
       "description": "Vrai si les données sont un jeu de développement synthétique et non le produit du pipeline. Le site affiche alors un bandeau permanent, et « pnpm verify:release » échoue : des données fictives peuvent servir à construire le site, jamais à le publier."
+    },
+    "performanceSource": {
+      "type": "string",
+      "enum": [
+        "oracle",
+        "leaguepedia"
+      ],
+      "description": "Source des performances joueur-game. Oracle's Elixir porte les différentiels de lane à 15 minutes ; les tableaux de score de Leaguepedia ne les portent pas. La source change donc ce que metric_std peut mesurer, et le site doit pouvoir le dire."
+    },
+    "metricComponents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Composants de metric_std réellement calculés. Une estimation bâtie sur cinq composants au lieu de huit ne doit pas se présenter comme les autres."
     }
   },
   "required": [
@@ -89,7 +106,9 @@
     "counts",
     "unmatchedRate",
     "sources",
-    "synthetic"
+    "synthetic",
+    "performanceSource",
+    "metricComponents"
   ],
   "additionalProperties": false,
   "$defs": {

@@ -6,18 +6,30 @@
 period:
   first_season: 2019
 
+# Source des performances joueur-game.
+#
+#   oracle       CSV annuels d'Oracle's Elixir — source de référence du brief, mais
+#                distribuée par Google Drive dont le quota public s'épuise.
+#   leaguepedia  tableaux de score, par la même API Cargo que les contrats. Vrais pseudos
+#                et vraies équipes, mais pas de différentiels de lane à 15 minutes : trois
+#                des huit composants de metric_std disparaissent alors, et meta.json
+#                enregistre lesquels ont réellement servi.
+performance_source: leaguepedia
+
 leagues:
   - id: LEC
     label: "LEC"
     tier: 1
     region: EMEA
     oracle_codes: ["LEC"]
+    leaguepedia_page: "LEC"
 
   - id: LFL
     label: "LFL"
     tier: 2
     region: EMEA
     oracle_codes: ["LFL"]
+    leaguepedia_page: "LFL"
 
 # Rencontres internationales : elles ne sont pas exportées comme ligues, elles servent de
 # seconde source d'identification de l'effet de ligue (§4.1).

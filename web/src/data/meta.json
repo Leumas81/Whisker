@@ -1,10 +1,18 @@
 {
-  "generatedAt": "2026-08-23T19:23:20Z",
-  "pipelineCommit": "e96a92330415309e20df3458360f9b63fccf57da",
+  "generatedAt": "2026-08-23T21:01:35Z",
+  "pipelineCommit": "9b54e4a07608a4d1cc6a44da1d992acb93b6c839",
   "lastDataDate": "2026-08-23",
   "confidenceLevel": 0.8,
   "bootstrapReplicates": 60,
   "synthetic": true,
+  "performanceSource": "leaguepedia",
+  "metricComponents": [
+    "dmgshare",
+    "rendement",
+    "kp",
+    "survie",
+    "vision"
+  ],
   "counts": {
     "players": 204,
     "playerGames": 14400,

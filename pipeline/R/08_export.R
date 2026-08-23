@@ -185,6 +185,10 @@ whisker_export_salary <- function(salary, paths) {
 }
 
 whisker_export_meta <- function(games, effects, salary, synthetic, paths) {
+  config <- whisker_config("leagues", paths)
+  spec <- whisker_metric_spec(paths)
+  components <- whisker_available_components(whisker_metric_components(games, spec), spec)
+
   sources <- list(
     list(name = "Oracle's Elixir", url = "https://oracleselixir.com/tools/downloads",
          licence = "Usage libre avec attribution", retrievedAt = format(Sys.Date(), "%Y-%m-%d")),
@@ -199,6 +203,8 @@ whisker_export_meta <- function(games, effects, salary, synthetic, paths) {
     confidenceLevel = WHISKER_CONFIDENCE,
     bootstrapReplicates = WHISKER_REPLICATES,
     synthetic = isTRUE(synthetic),
+    performanceSource = config$performance_source %||% "oracle",
+    metricComponents = as.list(components),
     counts = list(
       players = length(unique(games$playername)),
       playerGames = nrow(games),

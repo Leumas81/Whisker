@@ -105,7 +105,7 @@ whisker_standardise_against <- function(values, reference) {
 whisker_metric_std <- function(games, spec = whisker_metric_spec()) {
   games <- whisker_metric_components(games, spec)
 
-  keys <- vapply(spec$components, function(component) component$key, character(1))
+  keys <- whisker_available_components(games, spec)
   lower <- spec$winsorize$lower_quantile
   upper <- spec$winsorize$upper_quantile
   reference_league <- spec$standardisation$reference_league
@@ -135,10 +135,10 @@ whisker_metric_std <- function(games, spec = whisker_metric_spec()) {
     }
   }
 
-  # Poids unitaires sur les seuls composants retenus pour le poste.
+  # Poids unitaires sur les seuls composants retenus pour le poste, et disponibles.
   games$metric_std <- NA_real_
   for (role in names(spec$inclusion)) {
-    included <- paste0("z_", spec$inclusion[[role]])
+    included <- paste0("z_", intersect(spec$inclusion[[role]], keys))
     rows <- which(games$role == role)
     if (length(rows) == 0) next
     block <- as.matrix(games[rows, included, drop = FALSE])
@@ -160,6 +160,28 @@ whisker_metric_std <- function(games, spec = whisker_metric_spec()) {
   }
 
   games
+}
+
+#' Composants effectivement calculables sur les données fournies.
+#'
+#' Une source qui ne porte pas les différentiels de lane rend ces colonnes entièrement
+#' manquantes. Les garder dans la moyenne produirait un composite entièrement NA ; les
+#' retirer en silence donnerait une estimation qui se présenterait comme les autres. On les
+#' retire, et on rend la liste de ce qui a servi.
+whisker_available_components <- function(games, spec) {
+  keys <- vapply(spec$components, function(component) component$key, character(1))
+  usable <- vapply(keys, function(key) any(is.finite(games[[key]])), logical(1))
+
+  if (any(!usable)) {
+    whisker_log(
+      "metric_std", "composants écartés faute de données : %s",
+      paste(keys[!usable], collapse = ", ")
+    )
+  }
+  if (!any(usable)) {
+    stop("Aucun composant de metric_std n'est calculable sur ces données.", call. = FALSE)
+  }
+  unname(keys[usable])
 }
 
 # ── Passage à l'indice affiché ─────────────────────────────────────────────────────────

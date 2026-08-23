@@ -19,28 +19,33 @@ version: 1
 
 components:
   - key: gd15
+    sources: [oracle]
     label: "Différentiel d'or à 15 min"
     expression: "golddiffat15"
     nature: adversaire
     note: "Écart d'or face à l'adversaire du même poste. Le cœur de la phase de lane."
 
   - key: xpd15
+    sources: [oracle]
     label: "Différentiel d'expérience à 15 min"
     expression: "xpdiffat15"
     nature: adversaire
     note: "Capte la pression exercée même sans avantage d'or, typiquement chez les tops."
 
   - key: csd15
+    sources: [oracle]
     label: "Différentiel de farm à 15 min"
     expression: "csdiffat15"
     nature: adversaire
 
   - key: dmgshare
+    sources: [oracle, leaguepedia]
     label: "Part des dégâts de l'équipe"
     expression: "damageshare"
     nature: equipe
 
   - key: rendement
+    sources: [oracle, leaguepedia]
     label: "Rendement des ressources"
     expression: "damageshare - earnedgoldshare"
     nature: equipe
@@ -50,18 +55,21 @@ components:
       l'un des composants les moins contaminés par le contexte.
 
   - key: kp
+    sources: [oracle, leaguepedia]
     label: "Participation aux éliminations"
     expression: "ifelse(team_kills > 0, (kills + assists) / team_kills, 0)"
     nature: equipe
     note: "team_kills vient de la ligne agrégée (position == 'team') du même gameid et du même côté. Vaut 0 si l'équipe n'a réalisé aucune élimination."
 
   - key: survie
+    sources: [oracle, leaguepedia]
     label: "Survie"
     expression: "-10 * deaths / (gamelength / 60)"
     nature: individuel
     note: "Morts pour dix minutes, signe inversé : moins mourir vaut mieux. Mourir est l'un des rares événements presque entièrement individuels."
 
   - key: vision
+    sources: [oracle, leaguepedia]
     label: "Score de vision par minute"
     expression: "vspm"
     nature: individuel
@@ -72,6 +80,10 @@ components:
 # ci-dessous sont des hypothèses, pas des évidences : la phase 2 rapporte le coefficient de
 # corrélation intra-classe joueur de chaque composant par poste, et cette matrice est
 # révisée sur cette base si elle a tort.
+
+# Un composant absent de la source active est retiré du calcul, et la liste de ceux qui ont
+# réellement servi part dans meta.json. Une estimation qui repose sur moins d'information doit
+# le dire plutôt que de se présenter à l'identique.
 
 inclusion:
   top: [gd15, xpd15, csd15, dmgshare, rendement, kp, survie]

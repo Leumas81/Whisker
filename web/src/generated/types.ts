@@ -376,6 +376,16 @@ export interface MetaFile {
    * Vrai si les données sont un jeu de développement synthétique et non le produit du pipeline. Le site affiche alors un bandeau permanent, et « pnpm verify:release » échoue : des données fictives peuvent servir à construire le site, jamais à le publier.
    */
   synthetic: boolean;
+  /**
+   * Source des performances joueur-game. Oracle's Elixir porte les différentiels de lane à 15 minutes ; les tableaux de score de Leaguepedia ne les portent pas. La source change donc ce que metric_std peut mesurer, et le site doit pouvoir le dire.
+   */
+  performanceSource: "oracle" | "leaguepedia";
+  /**
+   * Composants de metric_std réellement calculés. Une estimation bâtie sur cinq composants au lieu de huit ne doit pas se présenter comme les autres.
+   *
+   * @minItems 1
+   */
+  metricComponents: [string, ...string[]];
 }
 export interface DataSource {
   name: string;
