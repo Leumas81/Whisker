@@ -21,7 +21,9 @@
     "dev": "pnpm --filter whisker-web run dev",
     "verify": "node tools/verify.mjs",
     "check:release": "node tools/check-release.mjs",
-    "verify:release": "node tools/verify.mjs && node tools/check-release.mjs"
+    "verify:release": "node tools/verify.mjs && node tools/check-release.mjs",
+    "lighthouse": "node tools/lighthouse.mjs",
+    "test:cargo": "node tools/run-live-cargo.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
