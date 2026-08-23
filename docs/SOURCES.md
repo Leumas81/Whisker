@@ -97,3 +97,28 @@ restera dans l'historique git.
 Un joueur, une équipe ou un agent qui conteste une estimation dispose d'un moyen de contact
 sur `/methode`. Une contestation reçue est traitée comme une donnée : elle peut mener à
 corriger une correspondance d'identité, à retirer un joueur, ou à documenter une limite.
+
+---
+
+## Accessibilité des sources — état au 23 août 2026
+
+Les deux sources sont publiques mais leur accès n'est pas garanti depuis n'importe quelle
+machine. Ce qui suit est constaté, pas supposé.
+
+**Oracle's Elixir.** Le bucket S3 historique n'existe plus. Les fichiers annuels sont
+distribués par Google Drive, un identifiant par année, listés dans
+[`pipeline/config/leagues.yaml`](../pipeline/config/leagues.yaml). Le quota de téléchargement
+public de ces fichiers s'épuise ; Drive répond alors une page HTML avec un code 200. L'étape
+`01_download` refuse ce cas explicitement plutôt que de laisser un fichier HTML se faire
+passer pour un CSV.
+
+**Leaguepedia.** L'API Cargo renvoie `ratelimited` immédiatement depuis les adresses IP
+partagées, indépendamment du rythme des requêtes. Le pipeline respecte la politesse exigée —
+`User-Agent` identifiant le projet, une seconde entre deux requêtes, cache local — mais cela
+ne suffit pas depuis une IP mutualisée. Une exécution en CI, depuis une adresse dédiée, est le
+régime prévu de toute façon.
+
+**Conséquence.** Le pipeline n'a pas encore tourné sur les données réelles. Les JSON commités
+proviennent du générateur synthétique, qui traverse les mêmes étapes et les mêmes validations.
+Tant que `meta.synthetic` vaut `true`, le site l'annonce sur chaque page et le déploiement est
+refusé.

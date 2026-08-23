@@ -280,3 +280,114 @@ site qui dit ce qu'il sait et ce qu'il ignore : c'en est l'application la plus d
 
 **Ce qui ferait changer d'avis.** Une enquête LFL comparable à celle de Sheep Esports sur la
 LEC, ou toute source donnant une médiane sur la même période que le plafond.
+
+---
+
+## D-020 — Oracle's Elixir passe par Google Drive, et les identifiants sont de la configuration
+
+**Décidé.** Les identifiants Drive des fichiers annuels vivent dans `config/leagues.yaml`.
+L'étape 01 vérifie que le fichier reçu commence bien par un en-tête CSV portant `gameid`, et
+s'arrête en nommant la cause si Google renvoie une page HTML.
+
+**Pourquoi.** Le bucket S3 historique (`oracleselixir-downloadable-match-data`) n'existe plus.
+La distribution se fait par Google Drive, dont le quota de téléchargement public s'épuise et
+qui répond alors une page HTML avec un code 200. Sans ce contrôle, un fichier HTML se ferait
+passer pour un CSV et l'erreur n'apparaîtrait que bien plus loin, sous une forme illisible.
+
+**Ce qui ferait changer d'avis.** Un retour à une distribution par URL stable.
+
+---
+
+## D-021 — Un jeu de développement synthétique traverse les vraies étapes du pipeline
+
+**Décidé.** `pipeline/fixtures/generate.R` fabrique un jeu de la forme exacte du vrai, puis
+lui fait traverser les étapes 04 à 08 réelles — mêmes modèles, mêmes validations, mêmes
+schémas. `meta.json` porte alors `synthetic: true`.
+
+**Pourquoi.** Les deux sources sont hors d'atteinte depuis certaines machines : quota Drive
+épuisé côté Oracle's Elixir, limitation d'IP partagée côté API Cargo. Sans données, ni le
+forest plot ni les six pages ne pouvaient être construits ni relus. Faire traverser les vraies
+étapes plutôt qu'écrire des JSON à la main a un second effet : cela vérifie que la chaîne de
+modélisation fonctionne de bout en bout. Elle a d'ailleurs révélé quatre défauts réels — un
+diagnostic `plot.gam` mal appelé, `metric_std` non recalculé à l'export, un quintile supérieur
+infini, et des auto-références `$ref` que le validateur R ne sait pas résoudre.
+
+---
+
+## D-022 — Construire n'est pas publier : `meta.synthetic` et `check:release`
+
+**Décidé.** `pnpm verify` accepte des données synthétiques ; `node tools/check-release.mjs`
+les refuse. Le workflow de déploiement passe par ce second verrou. Tant que `synthetic` est
+vrai, chaque page affiche un bandeau permanent, et un test bout-en-bout vérifie qu'aucune page
+ne l'omet.
+
+**Pourquoi.** Le §0.2 interdit que des données fictives atteignent la production. Il ne dit
+pas qu'elles ne peuvent pas servir à construire. La distinction est portée par le drapeau, par
+le verrou et par le bandeau — trois barrières plutôt qu'une consigne.
+
+---
+
+## D-023 — `--muted` et `--flag` sont assombris par rapport au §5.2
+
+**Écart au brief, signalé.** Les valeurs du §5.2 donnaient 3,85:1 pour `--muted` et 4,14:1
+pour `--flag` sur le fond de page, sous le seuil AA de 4,5. Elles passent respectivement à
+`#5C6874` et `#8F5C00`, soit 5,26:1 sur le fond de page et 4,62:1 sur les panneaux.
+
+**Pourquoi.** Le §7 exige un audit axe-core sans violation et Lighthouse ≥ 95 en
+accessibilité ; les deux sont incompatibles avec les valeurs d'origine. La teinte est
+conservée, seule la luminosité change, et le calcul est reproductible.
+
+---
+
+## D-024 — Le forest plot ne contient aucun lien
+
+**Décidé.** Les lignes du graphique sont cliquables à la souris, mais ne sont pas des `<a>` et
+n'apparaissent pas dans l'ordre de tabulation. Un lien visible sous le graphique et la vue
+tableau de `/joueurs` assurent la navigation au clavier.
+
+**Pourquoi.** Le §5.3 décrit le graphique comme une image (`role="img"`) accompagnée d'une
+table équivalente. Un contenu interactif dans un élément annoncé comme atomique est
+inaccessible, et un `tabindex` négatif n'y change rien — axe le refuse explicitement. Le
+graphique est donc une image, et la navigation vit ailleurs.
+
+---
+
+## D-025 — Le graphique défile plutôt que de s'écraser sur petit écran
+
+**Décidé.** Le SVG a une largeur minimale de 660 unités dans un conteneur défilant, et la
+colonne « indice » est placée avant la zone de tracé.
+
+**Pourquoi.** Réduit à 375 px, un repère de 1000 unités ramène les libellés à quatre pixels :
+le graphique devient un motif gris. Le défilement horizontal préserve la lisibilité, et
+déplacer la valeur à gauche fait que tout ce qui est chiffré reste visible sans geste — seul
+le tracé demande à faire glisser.
+
+**Écart au brief.** Le §5.3 demande des dimensions en pourcentage ; elles le restent, avec un
+plancher.
+
+---
+
+## D-026 — L'équivalence inter-ligues documente son biais plutôt que de le corriger
+
+**Décidé.** `selectionCorrection` vaut `"none"`. Le biais est affiché en permanence sur
+`/traduction`, dans un encadré non masquable.
+
+**Pourquoi.** Le §4.2 laisse le choix entre correction par ratio de Mills et documentation
+explicite. Corriger demanderait un probit de promotion sur une population de candidats que les
+données ne décrivent pas : on n'observe que les joueurs promus, jamais ceux qu'aucune équipe
+n'a retenus. Un modèle de sélection qu'on ne peut pas valider ajouterait une couche
+d'hypothèses sans réduire l'incertitude réelle. Le champ existe dans le schéma pour que la
+décision inverse reste possible sans changer le contrat.
+
+---
+
+## D-027 — Les sources ne sont pas joignables depuis l'environnement de développement
+
+**Constat, pas décision.** Oracle's Elixir répond « quota dépassé » sur tous les fichiers
+Drive, et l'API Cargo de Leaguepedia renvoie « ratelimited » immédiatement depuis cette IP.
+Le code d'ingestion est écrit et ses fonctions pures sont testées, mais il n'a jamais tourné
+sur les données réelles.
+
+**Ce que cela implique.** Les phases 1 à 3 sont écrites et testées ; elles ne sont pas
+*validées sur les vraies données*. Le premier passage du workflow `pipeline.yml` en CI, où le
+réseau n'est pas contraint, est l'épreuve qui reste à passer.

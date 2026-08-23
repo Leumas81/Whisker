@@ -42,6 +42,12 @@ commités dans `web/src/data/`. Pour le faire tourner localement :
 Rscript pipeline/bootstrap.R
 ```
 
+> **Les données actuellement commitées sont synthétiques.** Oracle&rsquo;s Elixir distribue ses
+> CSV par Google Drive, dont le quota public était épuisé au moment du développement, et l&rsquo;API
+> Cargo de Leaguepedia limite les IP partagées : le pipeline n&rsquo;a pas encore tourné sur les
+> données réelles. `meta.synthetic` vaut `true`, chaque page l&rsquo;affiche en bandeau, et
+> `pnpm verify:release` refuse toute publication tant que c&rsquo;est le cas.
+
 ## Vérifier
 
 Une seule commande, à passer au vert avant de considérer quoi que ce soit terminé :
@@ -61,6 +67,8 @@ pipeline R. Pour rejouer une seule étape : `node tools/verify.mjs types`.
 | `pnpm build` | Construit le site statique |
 | `Rscript pipeline/run_all.R` | Exécute le pipeline complet |
 | `Rscript pipeline/run_all.R 04_model_league` | Rejoue une seule étape |
+| `Rscript pipeline/fixtures/generate.R` | Produit un jeu de développement synthétique |
+| `pnpm verify:release` | Vérifie, puis refuse de publier des données synthétiques |
 
 ## Où lire quoi
 
