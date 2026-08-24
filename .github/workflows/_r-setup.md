@@ -10,8 +10,10 @@ Trois raisons de fond, indépendantes les unes des autres :
 `https://cloud.r-project.org`, qui ne sert que des sources. Sur Linux, restaurer soixante-douze
 paquets depuis les sources signifie compiler `arrow`, `lme4` et `mgcv` — des dizaines de
 minutes, et autant d'occasions d'échouer sur une dépendance système manquante.
-`RENV_CONFIG_REPOS_OVERRIDE` reprend le dépôt que `setup-r` a configuré pour ce runner, qui
-sert des binaires précompilés.
+`RENV_CONFIG_REPOS_OVERRIDE` pointe vers le dépôt binaire de Posit correspondant à la
+distribution du runner, déduite de `/etc/os-release`. Lire la configuration de `setup-r`
+depuis R paraissait plus élégant, mais dépendait du nom qu'il donne à son dépôt : une clé
+absente faisait échouer l'étape en une seconde.
 
 **`V8` a besoin d'une bibliothèque système.** Le paquet `jsonvalidate`, qui valide les JSON
 produits contre les schémas, s'appuie sur `V8`. Sans `libnode-dev`, son installation échoue —

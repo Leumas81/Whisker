@@ -79,12 +79,17 @@ jobs:
       - name: Restaurer l'environnement R
         working-directory: pipeline
         run: |
-          # Le dépôt à utiliser est celui que setup-r a configuré pour ce runner — il sert des
-          # binaires. On le lit en neutralisant le .Rprofile du projet, qui activerait renv et
-          # remplacerait les dépôts par ceux du lockfile, lesquels ne servent que des sources.
-          REPO=$(R_PROFILE_USER=/dev/null Rscript -e 'cat(getOption("repos")[["CRAN"]])')
-          echo "dépôt : $REPO"
-          test -n "$REPO"
+          # Le dépôt binaire se déduit de la distribution du runner, sans passer par R : lire
+          # la configuration de setup-r depuis R dépendait du nom qu'il donne à son dépôt, et
+          # une clé absente faisait échouer l'étape en une seconde.
+          CODENAME=$(. /etc/os-release && echo "$VERSION_CODENAME")
+          REPO="https://packagemanager.posit.co/cran/__linux__/${CODENAME}/latest"
+          echo "distribution : $CODENAME"
+          echo "dépôt        : $REPO"
+
+          # renv est installé explicitement avant que le profil du projet ne tente de le faire
+          # depuis le dépôt du lockfile, qui ne sert que des sources.
+          R_PROFILE_USER=/dev/null Rscript -e "install.packages('renv', repos = '$REPO')"
 
           export RENV_CONFIG_REPOS_OVERRIDE="$REPO"
           Rscript -e 'renv::restore(prompt = FALSE)'
