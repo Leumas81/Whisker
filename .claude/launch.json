@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "whisker",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "whisker-web", "run", "dev", "--", "--port", "4321"],
+      "port": 4321
+    }
+  ]
+}

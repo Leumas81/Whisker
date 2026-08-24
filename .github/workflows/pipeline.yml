@@ -62,12 +62,15 @@ jobs:
     needs: decider
     if: needs.decider.outputs.lancer == 'true'
     runs-on: ubuntu-latest
-    # Le tirage des sources, quatre modèles mixtes et deux mille réplications de bootstrap
-    # sur quarante mille lignes : le plafond d'une heure et demie était optimiste.
-    timeout-minutes: 330
+    # Le tirage a son propre budget (WHISKER_FETCH_BUDGET_MINUTES) et s'arrête en le disant.
+    # Ce plafond-ci ne couvre plus qu'un imprévu : une exécution qui s'y heurte est un défaut
+    # à corriger, pas une durée normale. La première version, à 330 minutes, a laissé un
+    # tirage bloqué brûler cinq heures et demie sans rien produire.
+    timeout-minutes: 120
 
     env:
       WHISKER_REPLICATES: ${{ github.event.inputs.replicates || '2000' }}
+      WHISKER_FETCH_BUDGET_MINUTES: "45"
 
     steps:
       - uses: actions/checkout@v4

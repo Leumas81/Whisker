@@ -475,3 +475,43 @@ réplications de bootstrap devient réglable par `WHISKER_REPLICATES`.
 quarante mille lignes ne tiennent pas dans une heure et demie. Un plafond trop bas aurait
 produit un échec par expiration qu'on aurait pris pour un défaut du code. Le cache des
 réponses de source est conservé entre exécutions : une reprise après échec ne retélécharge rien.
+
+---
+
+## D-036 — La patience sans budget global est un blocage, pas de la robustesse
+
+**Constat.** Le premier passage en CI a tourné **cinq heures et demie** avant d'être annulé
+par le plafond, sans produire une seule ligne. La cause n'était pas la source mais mon
+réglage : vingt-quatre tentatives plafonnées à cinq minutes, multipliées par une centaine de
+pages. Chaque requête était patiente ; l'ensemble ne se terminait jamais.
+
+**Décidé.** Trois bornes, à trois échelles différentes :
+
+- **par requête** — huit tentatives, attente plafonnée à soixante secondes ;
+- **par tirage** — un budget global de quarante-cinq minutes, vérifié avant chaque tentative,
+  qui s'arrête en disant que le cache permet de reprendre ;
+- **par job** — un plafond de CI ramené de 330 à 120 minutes, qui ne couvre plus qu'un
+  imprévu au lieu de masquer un blocage.
+
+**Une sonde préalable** ouvre le tirage : une requête minuscule, quelques tentatives. Si elle
+échoue, le tirage complet échouerait aussi — autant le dire en deux minutes.
+
+**Vérifié.** Avec un budget de trois minutes, l'exécution s'arrête en **0,6 minute** avec un
+message qui nomme la cause. La sonde, elle, était passée — elle a rendu « BrokenBlade ».
+
+---
+
+## D-037 — La limitation de Fandom frappe aussi les adresses de CI
+
+**Constat, contre mon hypothèse précédente.** J'avais écrit que la limitation tenait à
+l'adresse mutualisée d'un accès domestique, et que la CI, sur adresse dédiée, n'y serait pas
+soumise. L'exécution de cinq heures et demie dit le contraire.
+
+**Ce qu'on observe réellement** : la limitation s'applique par fenêtre et laisse passer
+environ une requête sur quatre, quelle que soit l'adresse. Le message d'erreur a été corrigé
+en conséquence — il affirmait quelque chose de faux, ce qui est pire que de ne rien dire.
+
+**Conséquence pratique.** La pause entre deux requêtes passe d'une à deux secondes : elle
+déclenche nettement moins souvent la limitation, et coûte moins cher que les reprises qu'elle
+évite. Le cache sur disque rend une reprise après échec presque gratuite, ce qui fait du
+tirage complet une opération à reprendre plutôt qu'à réussir d'un coup.

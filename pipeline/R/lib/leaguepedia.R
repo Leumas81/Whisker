@@ -16,8 +16,16 @@
 # Un tirage de fond n'a pas la même patience qu'une poignée de requêtes : la limitation
 # de débit de Fandom s'applique par fenêtre, et attendre qu'elle rouvre est le comportement
 # correct. Chaque page déjà obtenue reste en cache, donc une reprise ne recommence rien.
-WHISKER_BULK_ATTEMPTS <- as.integer(Sys.getenv("WHISKER_BULK_ATTEMPTS", "24"))
-WHISKER_BULK_WAIT <- as.numeric(Sys.getenv("WHISKER_BULK_WAIT", "300"))
+WHISKER_BULK_ATTEMPTS <- as.integer(Sys.getenv("WHISKER_BULK_ATTEMPTS", "8"))
+WHISKER_BULK_WAIT <- as.numeric(Sys.getenv("WHISKER_BULK_WAIT", "60"))
+
+# Budget global du tirage, en minutes. Au-delà, on s'arrête en le disant plutôt que de
+# laisser la CI annuler au bout de plusieurs heures sans rien produire.
+WHISKER_FETCH_BUDGET <- as.numeric(Sys.getenv("WHISKER_FETCH_BUDGET_MINUTES", "45"))
+
+# Pause entre deux requêtes. Une seconde est le minimum de politesse ; deux déclenchent
+# nettement moins souvent la limitation, et coûtent moins cher que les reprises évitées.
+WHISKER_BULK_PAUSE <- as.numeric(Sys.getenv("WHISKER_BULK_PAUSE", "2"))
 
 WHISKER_SCOREBOARD_FIELDS <- paste(
   "ScoreboardPlayers.Link=playername",
@@ -55,6 +63,8 @@ whisker_fetch_scoreboards <- function(league_page, seasons, paths = whisker_path
   collected <- list()
 
   for (season in seasons) {
+    whisker_log("01_download", "%s/%d — budget restant : %.0f min",
+                league_page, season, whisker_deadline_left())
     page <- sprintf("%s/%d", league_page, season)
 
     players <- whisker_cargo_query(
@@ -63,7 +73,8 @@ whisker_fetch_scoreboards <- function(league_page, seasons, paths = whisker_path
       where = sprintf("ScoreboardPlayers.OverviewPage LIKE '%s%%'", page),
       order_by = "ScoreboardPlayers.GameId",
       limit = 500L, max_pages = 40L,
-      max_attempts = WHISKER_BULK_ATTEMPTS, max_wait = WHISKER_BULK_WAIT, paths = paths
+      pause = WHISKER_BULK_PAUSE, max_attempts = WHISKER_BULK_ATTEMPTS,
+      max_wait = WHISKER_BULK_WAIT, paths = paths
     )
     if (nrow(players) == 0) {
       whisker_log("01_download", "%s : aucune partie", page)
@@ -76,7 +87,8 @@ whisker_fetch_scoreboards <- function(league_page, seasons, paths = whisker_path
       where = sprintf("ScoreboardGames.OverviewPage LIKE '%s%%'", page),
       order_by = "ScoreboardGames.GameId",
       limit = 500L, max_pages = 20L,
-      max_attempts = WHISKER_BULK_ATTEMPTS, max_wait = WHISKER_BULK_WAIT, paths = paths
+      pause = WHISKER_BULK_PAUSE, max_attempts = WHISKER_BULK_ATTEMPTS,
+      max_wait = WHISKER_BULK_WAIT, paths = paths
     )
     players$minutes <- if (nrow(games) > 0) {
       as.numeric(games$minutes[match(players$gameid, games$gameid)])

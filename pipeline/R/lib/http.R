@@ -41,6 +41,47 @@ whisker_download <- function(url, destination, max_age_days = 6, paths = whisker
   destination
 }
 
+# Budget global d'un tirage. Sans lui, la patience par requête se multiplie par le nombre
+# de pages : vingt-quatre tentatives de cinq minutes sur cent pages, et le travail ne se
+# termine jamais — il se fait annuler au bout de cinq heures et demie sans rien produire.
+# Une limite atteinte doit se solder par un message, pas par un blocage.
+WHISKER_DEADLINE <- new.env(parent = emptyenv())
+WHISKER_DEADLINE$at <- NULL
+
+#' Ouvre un budget de temps pour les requêtes qui suivent.
+whisker_set_deadline <- function(minutes) {
+  WHISKER_DEADLINE$at <- if (is.null(minutes) || !is.finite(minutes)) {
+    NULL
+  } else {
+    Sys.time() + minutes * 60
+  }
+  invisible(WHISKER_DEADLINE$at)
+}
+
+#' Minutes restantes, ou NA si aucun budget n'est ouvert.
+whisker_deadline_left <- function() {
+  if (is.null(WHISKER_DEADLINE$at)) return(NA_real_)
+  as.numeric(difftime(WHISKER_DEADLINE$at, Sys.time(), units = "mins"))
+}
+
+whisker_check_deadline <- function(context = "") {
+  left <- whisker_deadline_left()
+  if (!is.na(left) && left <= 0) {
+    stop(
+      sprintf(
+        paste0(
+          "Budget de temps épuisé%s.\n",
+          "  La source a refusé de répondre pendant toute la durée impartie.\n",
+          "  Les pages déjà obtenues sont en cache : relancer reprend où l'on s'est arrêté."
+        ),
+        if (nzchar(context)) paste0(" (", context, ")") else ""
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(left)
+}
+
 #' Récupère une page Cargo, en réessayant si l'API limite le débit.
 #'
 #' Fandom signale la limitation dans le corps de la réponse, avec un code HTTP 200 :
@@ -51,6 +92,7 @@ whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L,
                                 max_wait = 60) {
   wait <- pause
   for (attempt in seq_len(max_attempts)) {
+    whisker_check_deadline("requête Cargo")
     if (!file.exists(cache)) {
       Sys.sleep(wait)
       whisker_download(url, cache, max_age_days = 6, paths = paths)
@@ -76,8 +118,9 @@ whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L,
   stop(
     paste0(
       "API Cargo : limitation de débit persistante après ", max_attempts, " tentatives.\n",
-      "  L'adresse IP utilisée est probablement mutualisée. Le pipeline hebdomadaire\n",
-      "  tourne depuis une adresse dédiée en CI, où cette limite ne s'applique pas."
+      "  Fandom limite par fenêtre, et la limite frappe aussi les adresses de CI —\n",
+      "  observé : environ une requête sur quatre passe.\n",
+      "  Les pages déjà obtenues sont en cache : relancer reprend où l'on s'est arrêté."
     ),
     call. = FALSE
   )

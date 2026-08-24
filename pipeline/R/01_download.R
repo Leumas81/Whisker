@@ -86,7 +86,37 @@ whisker_download_oracle <- function(config, paths) {
 
 # ── Leaguepedia ──────────────────────────────────────────────────────────────────────────
 
+#' Vérifie que la source répond avant d'engager un tirage de plusieurs dizaines de minutes.
+#'
+#' Une requête minuscule, quelques tentatives. Si elle échoue, le tirage complet échouera
+#' aussi : autant le dire en deux minutes plutôt qu'en cinq heures.
+whisker_probe_cargo <- function(paths) {
+  whisker_log("01_download", "sonde préalable de l'API Cargo")
+  rows <- whisker_cargo_query(
+    tables = "ScoreboardPlayers",
+    fields = "ScoreboardPlayers.Link=playername",
+    where = "ScoreboardPlayers.OverviewPage LIKE 'LEC/2025%'",
+    order_by = "ScoreboardPlayers.GameId",
+    limit = 5L, max_pages = 1L,
+    max_attempts = 5L, max_wait = 30, paths = paths
+  )
+  if (nrow(rows) == 0) {
+    stop(
+      paste0(
+        "La sonde n'a rendu aucune ligne alors que la table en contient.\n",
+        "  La requête ou les noms de champs ont probablement changé côté Leaguepedia."
+      ),
+      call. = FALSE
+    )
+  }
+  whisker_log("01_download", "sonde : %d lignes, exemple « %s »", nrow(rows), rows$playername[1])
+  invisible(TRUE)
+}
+
 whisker_download_leaguepedia <- function(config, paths) {
+  whisker_set_deadline(WHISKER_FETCH_BUDGET)
+  whisker_probe_cargo(paths)
+
   first_season <- config$period$first_season
   seasons <- seq(first_season, as.integer(format(Sys.Date(), "%Y")))
   pages <- vapply(config$leagues, function(league) league$leaguepedia_page, character(1))
