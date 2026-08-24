@@ -115,6 +115,7 @@ whisker_probe_cargo <- function(paths) {
 
 whisker_download_leaguepedia <- function(config, paths) {
   whisker_set_deadline(WHISKER_FETCH_BUDGET)
+  whisker_reset_skipped()
   whisker_probe_cargo(paths)
 
   first_season <- config$period$first_season
@@ -131,6 +132,31 @@ whisker_download_leaguepedia <- function(config, paths) {
     whisker_log("01_download", "%s : %d lignes au total", ids[index], nrow(rows))
   }
 
+  # Un tirage incomplet ne doit pas se présenter comme complet. Une source qui ne laisse
+  # passer qu'une requête sur quatre finit toujours par en refuser quelques-unes jusqu'au
+  # bout ; ce qui a été obtenu reste en cache, et une reprise le complète. Mais tant qu'il
+  # manque une page, les effectifs seraient faux et le classement bancal.
+  manquantes <- whisker_skipped_count()
+  marqueur <- file.path(paths$interim, "tirage_incomplet")
+
+  if (manquantes > 0) {
+    writeLines(as.character(manquantes), marqueur)
+    stop(
+      sprintf(
+        paste0(
+          "Tirage incomplet : %d page(s) refusée(s) par la source.\n",
+          "  %d lignes ont tout de même été obtenues et sont en cache.\n",
+          "  Relancer le tirage reprend là où il s'est arrêté : rien n'est retéléchargé.\n",
+          "  Aucun jeu de données n'est écrit tant qu'il manque une page — des effectifs\n",
+          "  amputés produiraient un classement faux sans que rien ne le signale."
+        ),
+        manquantes, nrow(do.call(rbind, collected))
+      ),
+      call. = FALSE
+    )
+  }
+
+  unlink(marqueur)
   games <- whisker_normalise_scoreboards(do.call(rbind, collected))
   destination <- file.path(paths$interim, "scoreboards.parquet")
   arrow::write_parquet(games, destination)

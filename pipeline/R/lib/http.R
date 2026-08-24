@@ -48,6 +48,19 @@ whisker_download <- function(url, destination, max_age_days = 6, paths = whisker
 WHISKER_DEADLINE <- new.env(parent = emptyenv())
 WHISKER_DEADLINE$at <- NULL
 
+# Pages qu'on a renoncé à obtenir dans le tirage courant. Une source qui ne laisse passer
+# qu'une requête sur quatre finit toujours par en refuser une jusqu'au bout ; faire tomber
+# tout le travail pour autant serait absurde, alors qu'il suffit de reprendre plus tard.
+WHISKER_SKIPPED <- new.env(parent = emptyenv())
+WHISKER_SKIPPED$count <- 0L
+
+whisker_reset_skipped <- function() {
+  WHISKER_SKIPPED$count <- 0L
+  invisible(NULL)
+}
+
+whisker_skipped_count <- function() WHISKER_SKIPPED$count
+
 #' Ouvre un budget de temps pour les requêtes qui suivent.
 whisker_set_deadline <- function(minutes) {
   WHISKER_DEADLINE$at <- if (is.null(minutes) || !is.finite(minutes)) {
@@ -89,7 +102,7 @@ whisker_check_deadline <- function(context = "") {
 #' la même requête passe quelques secondes plus tard. On patiente donc, en doublant
 #' l'attente, plutôt que d'abandonner une exécution de pipeline pour une seconde de trop.
 whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L,
-                                max_wait = 60) {
+                                max_wait = 60, on_rate_limit = "stop") {
   wait <- pause
   for (attempt in seq_len(max_attempts)) {
     whisker_check_deadline("requête Cargo")
@@ -113,6 +126,12 @@ whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L,
     wait <- min(wait * 2, max_wait)
     whisker_log("cargo", "limitation de débit, nouvelle tentative dans %.0f s (%d/%d)",
                 wait, attempt, max_attempts)
+  }
+
+  if (identical(on_rate_limit, "skip")) {
+    WHISKER_SKIPPED$count <- WHISKER_SKIPPED$count + 1L
+    whisker_log("cargo", "page abandonnée après %d tentatives, on continue", max_attempts)
+    return(NULL)
   }
 
   stop(
@@ -139,7 +158,7 @@ whisker_cargo_fetch <- function(url, cache, pause, paths, max_attempts = 6L,
 whisker_cargo_query <- function(tables, fields, where = NULL, join_on = NULL,
                                 order_by = NULL, limit = 500L, pause = 1.0,
                                 max_pages = 200L, max_attempts = 6L, max_wait = 60,
-                                paths = whisker_paths()) {
+                                on_rate_limit = "stop", paths = whisker_paths()) {
   base <- "https://lol.fandom.com/api.php"
   collected <- list()
   offset <- 0L
@@ -157,7 +176,9 @@ whisker_cargo_query <- function(tables, fields, where = NULL, join_on = NULL,
     url <- httr2::url_modify_query(base, !!!query)
     cache <- whisker_cache_path(url, "json", paths)
 
-    payload <- whisker_cargo_fetch(url, cache, pause, paths, max_attempts, max_wait)
+    payload <- whisker_cargo_fetch(url, cache, pause, paths, max_attempts, max_wait,
+                                   on_rate_limit)
+    if (is.null(payload)) break
 
     rows <- payload$cargoquery
     if (length(rows) == 0) break

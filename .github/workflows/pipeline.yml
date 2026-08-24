@@ -23,6 +23,10 @@ on:
         description: "Réplications de bootstrap (2000 en régime normal)"
         required: false
         default: "2000"
+      reprise:
+        description: "Numéro de reprise, renseigné automatiquement"
+        required: false
+        default: "0"
   push:
     branches: [main]
 
@@ -126,19 +130,50 @@ jobs:
       - name: Installer les dépendances Node
         run: pnpm install --frozen-lockfile
 
-      # Les réponses des sources sont mises en cache sur disque. Le conserver entre deux
-      # exécutions évite de retélécharger l'historique complet chaque semaine, et rend une
-      # reprise après échec presque gratuite.
+      # Le cache des réponses porte la reprise : la source ne laisse passer qu'une requête
+      # sur quatre, et un tirage complet demande plusieurs exécutions. Chaque page obtenue
+      # est conservée, donc rien n'est retéléchargé d'une exécution à l'autre.
       - name: Cache des réponses de source
         uses: actions/cache@v4
         with:
           path: pipeline/raw
-          key: sources-${{ github.run_id }}
-          restore-keys: sources-
+          key: sources-leaguepedia-${{ github.run_id }}
+          restore-keys: |
+            sources-leaguepedia-
+            sources-
 
       - name: Exécuter le pipeline
+        id: pipeline
+        continue-on-error: true
         working-directory: pipeline
         run: Rscript run_all.R ${{ github.event.inputs.steps }}
+
+      # Un tirage incomplet n'est pas un défaut du code : la source refuse une partie des
+      # requêtes, et ce qui a été obtenu est en cache. On relance donc, en bornant le nombre
+      # de reprises pour qu'une source durablement fermée ne tourne pas en boucle.
+      - name: Reprendre le tirage si la source en a refusé une partie
+        if: steps.pipeline.outcome == 'failure' && hashFiles('pipeline/interim/tirage_incomplet') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPRISE: ${{ github.event.inputs.reprise || '0' }}
+        run: |
+          manquantes=$(cat pipeline/interim/tirage_incomplet)
+          echo "### Tirage incomplet" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "$manquantes page(s) refusée(s) par la source. Reprise n° $REPRISE." >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$REPRISE" -ge 6 ]; then
+            echo "Six reprises sans aboutir : la source est durablement fermée." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          gh workflow run pipeline.yml             --field steps=""             --field replicates="${{ env.WHISKER_REPLICATES }}"             --field reprise="$(( REPRISE + 1 ))"
+          echo "Reprise déclenchée." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Signaler un échec qui n'est pas une reprise
+        if: steps.pipeline.outcome == 'failure' && hashFiles('pipeline/interim/tirage_incomplet') == ''
+        run: exit 1
 
       - name: Valider les cinq JSON contre les schémas
         run: node tools/validate-data.mjs --require-all

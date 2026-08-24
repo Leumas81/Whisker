@@ -74,7 +74,7 @@ whisker_fetch_scoreboards <- function(league_page, seasons, paths = whisker_path
       order_by = "ScoreboardPlayers.GameId",
       limit = 500L, max_pages = 40L,
       pause = WHISKER_BULK_PAUSE, max_attempts = WHISKER_BULK_ATTEMPTS,
-      max_wait = WHISKER_BULK_WAIT, paths = paths
+      max_wait = WHISKER_BULK_WAIT, on_rate_limit = "skip", paths = paths
     )
     if (nrow(players) == 0) {
       whisker_log("01_download", "%s : aucune partie", page)
@@ -88,7 +88,7 @@ whisker_fetch_scoreboards <- function(league_page, seasons, paths = whisker_path
       order_by = "ScoreboardGames.GameId",
       limit = 500L, max_pages = 20L,
       pause = WHISKER_BULK_PAUSE, max_attempts = WHISKER_BULK_ATTEMPTS,
-      max_wait = WHISKER_BULK_WAIT, paths = paths
+      max_wait = WHISKER_BULK_WAIT, on_rate_limit = "skip", paths = paths
     )
     players$minutes <- if (nrow(games) > 0) {
       as.numeric(games$minutes[match(players$gameid, games$gameid)])

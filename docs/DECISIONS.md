@@ -515,3 +515,30 @@ en conséquence — il affirmait quelque chose de faux, ce qui est pire que de n
 déclenche nettement moins souvent la limitation, et coûte moins cher que les reprises qu'elle
 évite. Le cache sur disque rend une reprise après échec presque gratuite, ce qui fait du
 tirage complet une opération à reprendre plutôt qu'à réussir d'un coup.
+
+---
+
+## D-038 — Un tirage complet demande plusieurs exécutions, et le pipeline en tient compte
+
+**Constat.** Après avoir borné le tirage, l'exécution en CI a échoué en dix-neuf minutes sur
+« limitation de débit persistante après 8 tentatives ». Le budget de quarante-cinq minutes
+n'était même pas consommé : c'est **une seule page** qui avait épuisé ses essais et fait
+tomber tout le travail. Sur une source qui ne laisse passer qu'environ une requête sur
+quatre, une centaine de pages garantit qu'au moins l'une d'elles sera refusée jusqu'au bout.
+
+**Décidé.** Une page refusée est comptée et sautée, le tirage continue. À la fin, s'il en
+manque une seule, l'étape s'arrête sans rien écrire et pose un marqueur : des effectifs
+amputés produiraient un classement faux sans que rien ne le signale.
+
+Le cache des réponses porte alors la reprise. Il est conservé entre exécutions sous une clé
+stable, si bien qu'une nouvelle exécution ne retélécharge rien et ne demande à la source que
+les pages manquantes. Le workflow se relance lui-même, jusqu'à six fois : un tirage complet
+est une opération à reprendre, pas à réussir d'un coup.
+
+**Ce qui reste fatal.** Une erreur d'API qui n'est pas une limitation — table renommée, champ
+inexistant — s'arrête immédiatement, même en mode tolérant. La sauter produirait un jeu
+silencieusement amputé, ce qui est précisément ce qu'on cherche à éviter.
+
+**Vérifié.** Cinq tests couvrent le tri entre ces cas, en substituant la réponse réseau plutôt
+qu'en dépendant de la disponibilité de la source. Le budget global reste la borne la plus
+forte : sauter des pages ne permet pas de le dépasser.
