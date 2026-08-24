@@ -77,9 +77,36 @@ jobs:
           r-version: "4.4.2"
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-renv@v2
+      # V8, dont dépend jsonvalidate, ne s'installe pas sans cette bibliothèque système.
+      # Sans elle, c'est toute la validation du contrat de données qui tombe.
+      - name: Dépendances système
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libnode-dev libcurl4-openssl-dev libssl-dev libxml2-dev
+
+      - name: Cache de la bibliothèque R
+        uses: actions/cache@v4
         with:
-          working-directory: pipeline
+          path: ~/.cache/R/renv
+          key: renv-${{ runner.os }}-${{ hashFiles('pipeline/renv.lock') }}
+          restore-keys: renv-${{ runner.os }}-
+
+      # Voir .github/workflows/_r-setup.md pour le détail. En deux mots : le lockfile déclare
+      # un dépôt de sources, ce qui ferait compiler arrow et lme4 sur le runner. On force
+      # renv à utiliser celui que setup-r a configuré, qui sert des binaires.
+      - name: Restaurer l'environnement R
+        working-directory: pipeline
+        run: |
+          # Le dépôt à utiliser est celui que setup-r a configuré pour ce runner — il sert des
+          # binaires. On le lit en neutralisant le .Rprofile du projet, qui activerait renv et
+          # remplacerait les dépôts par ceux du lockfile, lesquels ne servent que des sources.
+          REPO=$(R_PROFILE_USER=/dev/null Rscript -e 'cat(getOption("repos")[["CRAN"]])')
+          echo "dépôt : $REPO"
+          test -n "$REPO"
+
+          export RENV_CONFIG_REPOS_OVERRIDE="$REPO"
+          Rscript -e 'renv::restore(prompt = FALSE)'
+          Rscript -e 'cat("paquets restaurés :", nrow(installed.packages()), "\n")'
 
       - uses: pnpm/action-setup@v4
 
