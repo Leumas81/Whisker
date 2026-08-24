@@ -31,6 +31,12 @@ STEPS <- c(
 
 run_pipeline <- function(requested = character()) {
   paths <- whisker_ensure_dirs()
+
+  # Les bibliothèques internes d'abord : les étapes s'appuient dessus. Les oublier ici
+  # produisait un « impossible de trouver la fonction » à la première étape, alors que le
+  # générateur de développement les sourçait explicitement et ne voyait donc rien.
+  whisker_source_lib(paths)
+
   for (step in STEPS) {
     source(file.path(PIPELINE_DIR, "R", paste0(step, ".R")))
   }
